@@ -24,6 +24,9 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import {sayHi} from 'react-native-prestyle';
+
+sayHi();
 
 type SectionProps = PropsWithChildren<{
   title: string;
