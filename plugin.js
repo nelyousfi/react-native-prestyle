@@ -1,5 +1,6 @@
+import reactNativeStyleAttributes from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
+
 function getComponentProps(t, openingElement) {
-  const staticThemeProps = ["flex", "alignItems", "justifyContent"];
   const dynamicThemeProps = [
     {
       name: "backgroundColor",
@@ -12,18 +13,7 @@ function getComponentProps(t, openingElement) {
       if (t.isJSXAttribute(attribute)) {
         const propName = attribute.name.name;
         let dynamicProp;
-        if (staticThemeProps.includes(propName)) {
-          acc[0].push(
-            t.objectProperty(
-              t.identifier(propName),
-              attribute.value.type === "JSXExpressionContainer"
-                ? // flex={1}
-                  attribute.value.expression
-                : // flexDirection="row"
-                  attribute.value
-            )
-          );
-        } else if (
+        if (
           (dynamicProp = dynamicThemeProps.find(
             ({ name }) => name === propName
           ))
@@ -42,6 +32,17 @@ function getComponentProps(t, openingElement) {
                     : attribute.value.value
                 )
               )
+            )
+          );
+        } else if (reactNativeStyleAttributes[propName]) {
+          acc[0].push(
+            t.objectProperty(
+              t.identifier(propName),
+              attribute.value.type === "JSXExpressionContainer"
+                ? // flex={1}
+                  attribute.value.expression
+                : // flexDirection="row"
+                  attribute.value
             )
           );
         } else {
@@ -131,7 +132,7 @@ function injectStyleProp(t, openingElement, styledProps) {
   );
 }
 
-module.exports = function (babel) {
+export default function (babel) {
   const t = babel.types;
   return {
     visitor: {
@@ -173,4 +174,4 @@ module.exports = function (babel) {
       },
     },
   };
-};
+}

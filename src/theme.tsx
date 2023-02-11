@@ -4,7 +4,7 @@ import React, {
   ReactNode,
   useContext,
 } from "react";
-import { Text, View, ViewProps } from "react-native";
+import { Text, View, ViewProps, ViewStyle } from "react-native";
 
 export type BaseTheme = {
   colors: Record<string, string>;
@@ -35,12 +35,10 @@ export const enrichTheme = <Theme extends BaseTheme>(theme: Theme) => {
     useTheme: buildUseTheme<Theme>(),
     ThemeProvider: buildThemeProvider<Theme>(theme),
     ThemedView: View as unknown as ComponentType<
-      ViewProps & {
-        flex: number;
-        alignItems: "center";
-        justifyContent: "center";
-        backgroundColor: keyof Theme["colors"];
-      }
+      ViewProps &
+        Omit<ViewStyle, "backgroundColor"> & {
+          backgroundColor?: keyof Theme["colors"];
+        }
     >,
     Text,
   };
