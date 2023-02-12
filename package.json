@@ -10,7 +10,8 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "build:plugin": "webpack"
+    "build:plugin": "webpack",
+    "build:plugin:watch": "webpack --watch"
   },
   "peerDependencies": {
     "react": "*",

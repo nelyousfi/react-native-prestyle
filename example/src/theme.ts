@@ -1,4 +1,4 @@
-import {enrichTheme} from 'react-native-prestyle';
+import {prestyle} from 'react-native-prestyle';
 
 const theme = {
   colors: {
@@ -7,6 +7,6 @@ const theme = {
   },
 };
 
-const {useTheme, ThemeProvider, ThemedView, Text} = enrichTheme(theme);
+const {useTheme, ThemeProvider, ThemedView, Text} = prestyle(theme);
 
 export {useTheme, ThemeProvider, ThemedView, Text};

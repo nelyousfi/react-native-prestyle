@@ -30,15 +30,16 @@ const buildThemeProvider = <Theme extends BaseTheme>(theme: Theme) => {
   );
 };
 
-export const enrichTheme = <Theme extends BaseTheme>(theme: Theme) => {
+export const prestyle = <Theme extends BaseTheme>(theme: Theme) => {
   return {
     useTheme: buildUseTheme<Theme>(),
     ThemeProvider: buildThemeProvider<Theme>(theme),
     ThemedView: View as unknown as ComponentType<
       ViewProps &
-        Omit<ViewStyle, "backgroundColor"> & {
-          backgroundColor?: keyof Theme["colors"];
-        }
+        Omit<ViewStyle, "backgroundColor"> &
+        Partial<{
+          backgroundColor: keyof Theme["colors"];
+        }>
     >,
     Text,
   };

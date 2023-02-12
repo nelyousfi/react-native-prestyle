@@ -2,9 +2,9 @@ const path = require("path");
 
 module.exports = {
   mode: "production",
-  entry: "./plugin.js",
+  entry: "./plugin/plugin.js",
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: __dirname,
     filename: "plugin.js",
     libraryTarget: "commonjs",
   },
@@ -14,7 +14,7 @@ module.exports = {
         test: /node_modules\/react-native\/Libraries\/Components\/View\/ReactNativeStyleAttributes.js/,
         use: [
           {
-            loader: "./custom-loader.js",
+            loader: "./plugin/loader.js",
             options: {
               ignore: [
                 "import type {AnyAttributeType} from '../../Renderer/shims/ReactNativeTypes';",
