@@ -1,5 +1,7 @@
 import reactNativeStyleAttributes from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
 
+const useTheme = "theme______";
+
 function getComponentProps(t, openingElement) {
   const dynamicThemeProps = [
     {
@@ -23,14 +25,17 @@ function getComponentProps(t, openingElement) {
               t.identifier(propName),
               t.memberExpression(
                 t.memberExpression(
-                  t.identifier("theme______"),
+                  t.identifier(useTheme),
                   t.identifier(dynamicProp["themeKey"])
                 ),
-                t.identifier(
-                  attribute.value.type === "JSXExpressionContainer"
-                    ? attribute.value.expression.value
-                    : attribute.value.value
-                )
+                attribute.value.type === "JSXExpressionContainer"
+                  ? attribute.value.expression.type === "Identifier"
+                    ? attribute.value.expression
+                    : t.identifier(attribute.value.expression.value)
+                  : t.identifier(attribute.value.value),
+                // computed -> { backgroundColor={backgroundColor} }
+                attribute.value.type === "JSXExpressionContainer" &&
+                  attribute.value.expression.type === "Identifier"
               )
             )
           );
@@ -55,24 +60,24 @@ function getComponentProps(t, openingElement) {
   );
 }
 
-function importUseTheme(t, path) {
+function importNamed(t, path, packageName, namedImport) {
   path.unshiftContainer(
     "body",
     t.importDeclaration(
-      [t.importSpecifier(t.identifier("useTheme"), t.identifier("useTheme"))],
-      t.stringLiteral("react-native-prestyle")
+      [t.importSpecifier(t.identifier(namedImport), t.identifier(namedImport))],
+      t.stringLiteral(packageName)
     )
   );
 }
 
-function injectUseTheme(t, nodePath) {
+function injectFunction(t, nodePath, name, functionName) {
   const blockStatementPath = nodePath.find((p) => p.isBlockStatement());
   blockStatementPath.unshiftContainer(
     "body",
     t.variableDeclaration("const", [
       t.variableDeclarator(
-        t.identifier("theme______"), // what if is already imported, we can just rename this identifier!
-        t.callExpression(t.identifier("useTheme"), [])
+        t.identifier(name), // what if is already imported, we can just rename this identifier!
+        t.callExpression(t.identifier(functionName), [])
       ),
     ])
   );
@@ -148,10 +153,10 @@ export default function (babel) {
               );
               if (styledProps.length > 0) {
                 // import useTheme
-                importUseTheme(t, path);
+                importNamed(t, path, "react-native-prestyle", "useTheme");
 
                 // const theme = useTheme()
-                injectUseTheme(t, nodePath);
+                injectFunction(t, nodePath, useTheme, "useTheme");
 
                 // build the style prop
                 const hasStyleProp = buildStyle(

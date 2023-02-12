@@ -20,10 +20,6 @@ export const useTheme = <Theme extends BaseTheme>() => {
   return context;
 };
 
-const buildUseTheme = <Theme extends BaseTheme>() => {
-  return useTheme<Theme>();
-};
-
 const buildThemeProvider = <Theme extends BaseTheme>(theme: Theme) => {
   return ({ children }: { children: ReactNode }) => (
     <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
@@ -32,7 +28,8 @@ const buildThemeProvider = <Theme extends BaseTheme>(theme: Theme) => {
 
 export const prestyle = <Theme extends BaseTheme>(theme: Theme) => {
   return {
-    useTheme: buildUseTheme<Theme>(),
+    // @ts-ignore
+    useTheme: useTheme<Theme>,
     ThemeProvider: buildThemeProvider<Theme>(theme),
     ThemedView: View as unknown as ComponentType<
       ViewProps &
