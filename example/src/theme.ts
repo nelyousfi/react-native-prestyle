@@ -1,12 +1,18 @@
 import {prestyle} from 'react-native-prestyle';
 
-const theme = {
-  colors: {
-    primary: 'blueviolet',
-    secondary: 'crimson',
+const {useTheme, ThemeProvider, ThemedView, Text} = prestyle({
+  light: {
+    colors: {
+      primary: 'blueviolet',
+      secondary: 'crimson',
+    },
   },
-};
-
-const {useTheme, ThemeProvider, ThemedView, Text} = prestyle(theme);
+  dark: {
+    colors: {
+      primary: 'deepskyblue',
+      secondary: 'gold',
+    },
+  },
+});
 
 export {useTheme, ThemeProvider, ThemedView, Text};

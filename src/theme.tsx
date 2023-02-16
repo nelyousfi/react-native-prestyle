@@ -6,36 +6,57 @@ import React, {
 } from "react";
 import { Text, View, ViewProps, ViewStyle } from "react-native";
 
-export type BaseTheme = {
+export type Theme = {
   colors: Record<string, string>;
 };
 
 const ThemeContext = createContext({} as any);
 
-export const useTheme = <Theme extends BaseTheme>() => {
-  const context = useContext<Theme>(ThemeContext);
+export const useTheme = <T extends Theme>() => {
+  const context = useContext<T>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
   }
   return context;
 };
 
-const buildThemeProvider = <Theme extends BaseTheme>(theme: Theme) => {
-  return ({ children }: { children: ReactNode }) => (
-    <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
-  );
+const buildThemeProvider = <
+  T extends Theme,
+  Themes extends { light: T; dark: T }
+>(
+  themes: Themes
+) => {
+  return ({
+    mode = "light",
+    children,
+  }: {
+    mode?: keyof Themes;
+    children: ReactNode;
+  }) => {
+    return (
+      <ThemeContext.Provider value={themes[mode]}>
+        {children}
+      </ThemeContext.Provider>
+    );
+  };
 };
 
-export const prestyle = <Theme extends BaseTheme>(theme: Theme) => {
+function buildUseTheme<T extends Theme>(): () => T {
+  return useTheme;
+}
+
+export const prestyle = <L extends Theme, D>(themes: {
+  light: L;
+  dark: L & D;
+}) => {
   return {
-    // @ts-ignore
-    useTheme: useTheme<Theme>,
-    ThemeProvider: buildThemeProvider<Theme>(theme),
+    useTheme: buildUseTheme<L>(),
+    ThemeProvider: buildThemeProvider<L, { light: L; dark: L }>(themes),
     ThemedView: View as unknown as ComponentType<
       ViewProps &
         Omit<ViewStyle, "backgroundColor"> &
         Partial<{
-          backgroundColor: keyof Theme["colors"];
+          backgroundColor: keyof L["colors"];
         }>
     >,
     Text,

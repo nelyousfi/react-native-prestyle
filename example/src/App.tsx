@@ -1,4 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
+import {Button, SafeAreaView} from 'react-native';
+
 import {Text, ThemeProvider, ThemedView} from './theme';
 
 const Component = () => {
@@ -11,7 +13,6 @@ const Component = () => {
         borderRadius={8}>
         <Text>Hello, I am working!</Text>
       </ThemedView>
-      <ThemedView backgroundColor={'secondary'} height={120} width={20} />
       <ThemedView
         flexDirection="row"
         flexWrap="wrap"
@@ -34,9 +35,18 @@ const Component = () => {
 };
 
 export default () => {
+  const [mode, setMode] = useState<'light' | 'dark'>('light');
+
+  const toggleTheme = () => {
+    setMode(m => (mode === 'light' ? 'dark' : 'light'));
+  };
+
   return (
-    <ThemeProvider>
-      <Component />
-    </ThemeProvider>
+    <SafeAreaView style={{flex: 1}}>
+      <ThemeProvider mode={mode}>
+        <Component />
+        <Button title={'Toggle Theme'} onPress={toggleTheme} />
+      </ThemeProvider>
+    </SafeAreaView>
   );
 };
