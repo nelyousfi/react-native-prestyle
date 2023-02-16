@@ -4,9 +4,67 @@ const useTheme = "theme______";
 
 function getComponentProps(t, openingElement) {
   const dynamicThemeProps = [
+    // colors
     {
       name: "backgroundColor",
       themeKey: "colors",
+    },
+    // spacing
+    {
+      name: "margin",
+      themeKey: "spacing",
+    },
+    {
+      name: "marginVertical",
+      themeKey: "spacing",
+    },
+    {
+      name: "marginHorizontal",
+      themeKey: "spacing",
+    },
+    {
+      name: "marginRight",
+      themeKey: "spacing",
+    },
+    {
+      name: "marginLeft",
+      themeKey: "spacing",
+    },
+    {
+      name: "marginTop",
+      themeKey: "spacing",
+    },
+    {
+      name: "marginBottom",
+      themeKey: "spacing",
+    },
+    {
+      name: "padding",
+      themeKey: "spacing",
+    },
+    {
+      name: "paddingVertical",
+      themeKey: "spacing",
+    },
+    {
+      name: "paddingHorizontal",
+      themeKey: "spacing",
+    },
+    {
+      name: "paddingRight",
+      themeKey: "spacing",
+    },
+    {
+      name: "paddingLeft",
+      themeKey: "spacing",
+    },
+    {
+      name: "paddingTop",
+      themeKey: "spacing",
+    },
+    {
+      name: "paddingBottom",
+      themeKey: "spacing",
     },
   ];
 

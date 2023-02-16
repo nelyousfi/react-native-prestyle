@@ -8,8 +8,8 @@ const Component = () => {
     <ThemedView flex={1} alignItems="center" justifyContent="center">
       <ThemedView
         backgroundColor="primary"
-        marginBottom={20}
-        padding={20}
+        marginBottom={'m'}
+        padding="s"
         borderRadius={8}>
         <Text>Hello, I am working!</Text>
       </ThemedView>

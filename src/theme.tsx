@@ -8,6 +8,7 @@ import { Text, View, ViewProps, ViewStyle } from "react-native";
 
 export type Theme = {
   colors: Record<string, string>;
+  spacing: Record<string, number>;
 };
 
 const ThemeContext = createContext({} as any);
@@ -56,7 +57,24 @@ export const prestyle = <L extends Theme, D>(themes: {
       ViewProps &
         Omit<ViewStyle, "backgroundColor"> &
         Partial<{
+          // colors
           backgroundColor: keyof L["colors"];
+          // margins
+          margin: keyof L["spacing"];
+          marginVertical: keyof L["spacing"];
+          marginHorizontal: keyof L["spacing"];
+          marginRight: keyof L["spacing"];
+          marginLeft: keyof L["spacing"];
+          marginTop: keyof L["spacing"];
+          marginBottom: keyof L["spacing"];
+          // paddins
+          padding: keyof L["spacing"];
+          paddingVertical: keyof L["spacing"];
+          paddingHorizontal: keyof L["spacing"];
+          paddingRight: keyof L["spacing"];
+          paddingLeft: keyof L["spacing"];
+          paddingTop: keyof L["spacing"];
+          paddingBottom: keyof L["spacing"];
         }>
     >,
     Text,
