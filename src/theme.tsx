@@ -21,32 +21,62 @@ export interface Theme<BP extends BreakPoints> {
   breakPoints: BP;
 }
 
-const ThemeContext = createContext({} as any);
+type ThemeContextType<BP extends BreakPoints, T extends Theme<BP>> = {
+  theme: T;
+  mode: keyof Themes<BP, T>;
+  breakPoint: keyof BP;
+};
 
-export const useTheme = <BP extends BreakPoints, T extends Theme<BP>>() => {
-  const context = useContext<T>(ThemeContext);
+const ThemeContext = createContext<ThemeContextType<any, any>>({} as any);
+
+export const useTheme = <BP extends BreakPoints, T extends Theme<BP>>(): T => {
+  const context = useContext<ThemeContextType<BP, T>>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
   }
-  return context;
+  return context.theme;
+};
+
+type Themes<BP extends BreakPoints, T extends Theme<BP>> = {
+  light: T;
+  dark: T;
 };
 
 const buildThemeProvider = <
   BP extends BreakPoints,
   T extends Theme<BP>,
-  Themes extends { light: T; dark: T }
+  TS extends Themes<BP, T>
 >(
-  themes: Themes
+  themes: TS
 ) => {
   return ({
     mode = "light",
     children,
   }: {
-    mode?: keyof Themes;
+    mode?: keyof Themes<BP, T>;
     children: ReactNode;
   }) => {
+    const theme = useMemo<T>(() => {
+      return themes[mode];
+    }, [mode, themes]);
+
+    const { width } = useWindowDimensions();
+
+    const breakPoint = useMemo(() => {
+      let breakPoint = Object.keys(theme.breakPoints)[0];
+      for (const [key, value] of sortObjectByValue(theme.breakPoints)) {
+        if (key === breakPoint) continue;
+        if (value <= width) {
+          breakPoint = key;
+        } else {
+          break;
+        }
+      }
+      return breakPoint;
+    }, [theme, width]);
+
     return (
-      <ThemeContext.Provider value={themes[mode]}>
+      <ThemeContext.Provider value={{ mode, theme, breakPoint }}>
         {children}
       </ThemeContext.Provider>
     );
@@ -70,23 +100,15 @@ function sortObjectByValue<T>(obj: Record<string, T>): Array<[string, T]> {
   });
 }
 
-export const useBreakPoint = <BP extends BreakPoints>(): keyof BP => {
-  const theme = useTheme();
-
-  const { width } = useWindowDimensions();
-
-  return useMemo(() => {
-    let breakPoint = Object.keys(theme.breakPoints)[0];
-    for (const [key, value] of sortObjectByValue(theme.breakPoints)) {
-      if (key === breakPoint) continue;
-      if (value <= width) {
-        breakPoint = key;
-      } else {
-        break;
-      }
-    }
-    return breakPoint;
-  }, [theme, width]);
+export const useBreakPoint = <
+  BP extends BreakPoints,
+  T extends Theme<BP>
+>(): keyof BP => {
+  const context = useContext<ThemeContextType<BP, T>>(ThemeContext);
+  if (!context) {
+    throw Error("Make sure to wrap your component with ThemeProvider!");
+  }
+  return context.breakPoint;
 };
 
 function buildUseBreakPoint<BP extends BreakPoints>(): () => keyof BP {
@@ -119,7 +141,7 @@ export const prestyle = <
           marginLeft: keyof L["spacing"];
           marginTop: keyof L["spacing"];
           marginBottom: keyof L["spacing"];
-          // paddins
+          // paddings
           padding: keyof L["spacing"];
           paddingVertical: keyof L["spacing"];
           paddingHorizontal: keyof L["spacing"];
