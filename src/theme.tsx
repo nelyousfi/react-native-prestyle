@@ -70,7 +70,7 @@ function sortObjectByValue<T>(obj: Record<string, T>): Array<[string, T]> {
   });
 }
 
-const useBreakPoint = <BP extends BreakPoints>(): keyof BP => {
+export const useBreakPoint = <BP extends BreakPoints>(): keyof BP => {
   const theme = useTheme();
 
   const { width } = useWindowDimensions();

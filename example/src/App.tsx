@@ -18,11 +18,9 @@ const Component = () => {
     <ThemedView flex={1} alignItems="center" justifyContent="center">
       <ThemedView
         backgroundColor="primary"
-        marginBottom={'m'}
-        padding="s"
+        padding={'s'}
         style={{
           backgroundColor: theme.colors.secondary,
-          padding: theme.spacing.s[breakPoint],
         }}
         borderRadius={8}>
         <Text>Hello, I am working!</Text>

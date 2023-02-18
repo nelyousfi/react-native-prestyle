@@ -1,73 +1,74 @@
 import reactNativeStyleAttributes from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
 
 const useTheme = "theme______";
+const useBreakPoint = "breakPoint______";
+
+const dynamicThemeProps = [
+  // colors
+  {
+    name: "backgroundColor",
+    themeKey: "colors",
+  },
+  // spacing
+  {
+    name: "margin",
+    themeKey: "spacing",
+  },
+  {
+    name: "marginVertical",
+    themeKey: "spacing",
+  },
+  {
+    name: "marginHorizontal",
+    themeKey: "spacing",
+  },
+  {
+    name: "marginRight",
+    themeKey: "spacing",
+  },
+  {
+    name: "marginLeft",
+    themeKey: "spacing",
+  },
+  {
+    name: "marginTop",
+    themeKey: "spacing",
+  },
+  {
+    name: "marginBottom",
+    themeKey: "spacing",
+  },
+  {
+    name: "padding",
+    themeKey: "spacing",
+  },
+  {
+    name: "paddingVertical",
+    themeKey: "spacing",
+  },
+  {
+    name: "paddingHorizontal",
+    themeKey: "spacing",
+  },
+  {
+    name: "paddingRight",
+    themeKey: "spacing",
+  },
+  {
+    name: "paddingLeft",
+    themeKey: "spacing",
+  },
+  {
+    name: "paddingTop",
+    themeKey: "spacing",
+  },
+  {
+    name: "paddingBottom",
+    themeKey: "spacing",
+  },
+];
 
 function getComponentProps(t, openingElement) {
-  const dynamicThemeProps = [
-    // colors
-    {
-      name: "backgroundColor",
-      themeKey: "colors",
-    },
-    // spacing
-    {
-      name: "margin",
-      themeKey: "spacing",
-    },
-    {
-      name: "marginVertical",
-      themeKey: "spacing",
-    },
-    {
-      name: "marginHorizontal",
-      themeKey: "spacing",
-    },
-    {
-      name: "marginRight",
-      themeKey: "spacing",
-    },
-    {
-      name: "marginLeft",
-      themeKey: "spacing",
-    },
-    {
-      name: "marginTop",
-      themeKey: "spacing",
-    },
-    {
-      name: "marginBottom",
-      themeKey: "spacing",
-    },
-    {
-      name: "padding",
-      themeKey: "spacing",
-    },
-    {
-      name: "paddingVertical",
-      themeKey: "spacing",
-    },
-    {
-      name: "paddingHorizontal",
-      themeKey: "spacing",
-    },
-    {
-      name: "paddingRight",
-      themeKey: "spacing",
-    },
-    {
-      name: "paddingLeft",
-      themeKey: "spacing",
-    },
-    {
-      name: "paddingTop",
-      themeKey: "spacing",
-    },
-    {
-      name: "paddingBottom",
-      themeKey: "spacing",
-    },
-  ];
-
   return openingElement.attributes.reduce(
     (acc, attribute) => {
       if (t.isJSXAttribute(attribute)) {
@@ -81,19 +82,62 @@ function getComponentProps(t, openingElement) {
           acc[0].push(
             t.objectProperty(
               t.identifier(propName),
-              t.memberExpression(
-                t.memberExpression(
-                  t.identifier(useTheme),
-                  t.identifier(dynamicProp["themeKey"])
+              // typeof theme.spacing.s === 'object' ? theme.spacing.s[breakPoint] : theme.spacing.s;
+              t.conditionalExpression(
+                t.binaryExpression(
+                  "===",
+                  t.unaryExpression(
+                    "typeof",
+                    t.memberExpression(
+                      t.memberExpression(
+                        t.identifier(useTheme),
+                        t.identifier(dynamicProp["themeKey"])
+                      ),
+                      attribute.value.type === "JSXExpressionContainer"
+                        ? attribute.value.expression.type === "Identifier"
+                          ? attribute.value.expression
+                          : t.identifier(attribute.value.expression.value)
+                        : t.identifier(attribute.value.value),
+                      // computed -> { backgroundColor={backgroundColor} }
+                      attribute.value.type === "JSXExpressionContainer" &&
+                        attribute.value.expression.type === "Identifier"
+                    ),
+                    true
+                  ),
+                  t.stringLiteral("object")
                 ),
-                attribute.value.type === "JSXExpressionContainer"
-                  ? attribute.value.expression.type === "Identifier"
-                    ? attribute.value.expression
-                    : t.identifier(attribute.value.expression.value)
-                  : t.identifier(attribute.value.value),
-                // computed -> { backgroundColor={backgroundColor} }
-                attribute.value.type === "JSXExpressionContainer" &&
-                  attribute.value.expression.type === "Identifier"
+                t.memberExpression(
+                  t.memberExpression(
+                    t.memberExpression(
+                      t.identifier(useTheme),
+                      t.identifier(dynamicProp["themeKey"])
+                    ),
+                    attribute.value.type === "JSXExpressionContainer"
+                      ? attribute.value.expression.type === "Identifier"
+                        ? attribute.value.expression
+                        : t.identifier(attribute.value.expression.value)
+                      : t.identifier(attribute.value.value),
+                    // computed -> { backgroundColor={backgroundColor} }
+                    attribute.value.type === "JSXExpressionContainer" &&
+                      attribute.value.expression.type === "Identifier"
+                  ),
+                  t.identifier(useBreakPoint),
+                  true
+                ),
+                t.memberExpression(
+                  t.memberExpression(
+                    t.identifier(useTheme),
+                    t.identifier(dynamicProp["themeKey"])
+                  ),
+                  attribute.value.type === "JSXExpressionContainer"
+                    ? attribute.value.expression.type === "Identifier"
+                      ? attribute.value.expression
+                      : t.identifier(attribute.value.expression.value)
+                    : t.identifier(attribute.value.value),
+                  // computed -> { backgroundColor={backgroundColor} }
+                  attribute.value.type === "JSXExpressionContainer" &&
+                    attribute.value.expression.type === "Identifier"
+                )
               )
             )
           );
@@ -210,11 +254,10 @@ export default function (babel) {
                 openingElement
               );
               if (styledProps.length > 0) {
-                // import useTheme
                 importNamed(t, path, "react-native-prestyle", "useTheme");
-
-                // const theme = useTheme()
+                importNamed(t, path, "react-native-prestyle", "useBreakPoint");
                 injectFunction(t, nodePath, useTheme, "useTheme");
+                injectFunction(t, nodePath, useBreakPoint, "useBreakPoint");
 
                 // build the style prop
                 const hasStyleProp = buildStyle(
