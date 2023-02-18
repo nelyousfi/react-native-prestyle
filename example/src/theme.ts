@@ -1,6 +1,6 @@
 import {prestyle} from 'react-native-prestyle';
 
-const {useTheme, ThemeProvider, ThemedView, Text} = prestyle({
+const {useTheme, ThemeProvider, ThemedView, Text, useBreakPoint} = prestyle({
   light: {
     colors: {
       primary: 'blueviolet',
@@ -9,17 +9,14 @@ const {useTheme, ThemeProvider, ThemedView, Text} = prestyle({
     spacing: {
       s: {
         phone: 10,
-        tablet: 10,
+        tablet: 100,
       },
       m: 16,
       l: 32,
     },
     breakPoints: {
       phone: 0,
-      tablet: {
-        width: 100,
-        height: 200,
-      },
+      tablet: 100,
     },
   },
   dark: {
@@ -30,19 +27,16 @@ const {useTheme, ThemeProvider, ThemedView, Text} = prestyle({
     spacing: {
       s: {
         phone: 10,
-        tablet: 100,
+        tablet: 50,
       },
       m: 16 * 2,
       l: 32 * 2,
     },
     breakPoints: {
       phone: 0,
-      tablet: {
-        width: 100,
-        height: 100,
-      },
+      tablet: 100,
     },
   },
 });
 
-export {useTheme, ThemeProvider, ThemedView, Text};
+export {useTheme, ThemeProvider, ThemedView, Text, useBreakPoint};

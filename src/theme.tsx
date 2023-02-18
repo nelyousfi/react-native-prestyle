@@ -3,10 +3,17 @@ import React, {
   createContext,
   ReactNode,
   useContext,
+  useMemo,
 } from "react";
-import { Text, View, ViewProps, ViewStyle } from "react-native";
+import {
+  Text,
+  useWindowDimensions,
+  View,
+  ViewProps,
+  ViewStyle,
+} from "react-native";
 
-type BreakPoints = Record<string, number | { width: number; height: number }>;
+type BreakPoints = Record<string, number>;
 
 export interface Theme<BP extends BreakPoints> {
   colors: Record<string, string | { [Key in keyof BP]: string }>;
@@ -50,6 +57,42 @@ function buildUseTheme<BP extends BreakPoints, T extends Theme<BP>>(): () => T {
   return useTheme;
 }
 
+function sortObjectByValue<T>(obj: Record<string, T>): Array<[string, T]> {
+  return Object.entries(obj).sort((a, b) => {
+    const [valueA, valueB] = [a[1], b[1]];
+    if (valueA < valueB) {
+      return -1;
+    }
+    if (valueA > valueB) {
+      return 1;
+    }
+    return 0;
+  });
+}
+
+const useBreakPoint = <BP extends BreakPoints>(): keyof BP => {
+  const theme = useTheme();
+
+  const { width } = useWindowDimensions();
+
+  return useMemo(() => {
+    let breakPoint = Object.keys(theme.breakPoints)[0];
+    for (const [key, value] of sortObjectByValue(theme.breakPoints)) {
+      if (key === breakPoint) continue;
+      if (value <= width) {
+        breakPoint = key;
+      } else {
+        break;
+      }
+    }
+    return breakPoint;
+  }, [theme, width]);
+};
+
+function buildUseBreakPoint<BP extends BreakPoints>(): () => keyof BP {
+  return useBreakPoint;
+}
+
 export const prestyle = <
   BP extends BreakPoints,
   L extends Theme<BP>,
@@ -60,6 +103,7 @@ export const prestyle = <
 }) => {
   return {
     useTheme: buildUseTheme<BP, L>(),
+    useBreakPoint: buildUseBreakPoint<BP>(),
     ThemeProvider: buildThemeProvider<BP, L, { light: L; dark: L }>(themes),
     ThemedView: View as unknown as ComponentType<
       ViewProps &

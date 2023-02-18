@@ -1,10 +1,19 @@
 import React, {useState} from 'react';
-import {Button, SafeAreaView} from 'react-native';
+import {Button, SafeAreaView, useWindowDimensions} from 'react-native';
 
-import {Text, ThemeProvider, ThemedView, useTheme} from './theme';
+import {
+  Text,
+  ThemeProvider,
+  ThemedView,
+  useTheme,
+  useBreakPoint,
+} from './theme';
 
 const Component = () => {
   const theme = useTheme();
+
+  const breakPoint = useBreakPoint();
+
   return (
     <ThemedView flex={1} alignItems="center" justifyContent="center">
       <ThemedView
@@ -13,6 +22,7 @@ const Component = () => {
         padding="s"
         style={{
           backgroundColor: theme.colors.secondary,
+          padding: theme.spacing.s[breakPoint],
         }}
         borderRadius={8}>
         <Text>Hello, I am working!</Text>
