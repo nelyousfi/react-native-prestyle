@@ -7,6 +7,8 @@ import React, {
 } from "react";
 import {
   Text,
+  TextProps,
+  TextStyle,
   useWindowDimensions,
   View,
   ViewProps,
@@ -121,7 +123,7 @@ export const prestyle = <
   D
 >(themes: {
   light: L & { breakPoints: BP };
-  dark: L & D & { breakPoints: BP };
+  dark: L & D;
 }) => {
   return {
     useTheme: buildUseTheme<BP, L>(),
@@ -129,7 +131,7 @@ export const prestyle = <
     ThemeProvider: buildThemeProvider<BP, L, { light: L; dark: L }>(themes),
     ThemedView: View as unknown as ComponentType<
       ViewProps &
-        Omit<ViewStyle, "backgroundColor"> &
+        ViewStyle &
         Partial<{
           // colors
           backgroundColor: keyof L["colors"];
@@ -151,6 +153,30 @@ export const prestyle = <
           paddingBottom: keyof L["spacing"];
         }>
     >,
-    Text,
+    ThemedText: Text as unknown as ComponentType<
+      TextProps &
+        TextStyle &
+        Partial<{
+          // colors
+          backgroundColor: keyof L["colors"];
+          color: keyof L["colors"];
+          // margins
+          margin: keyof L["spacing"];
+          marginVertical: keyof L["spacing"];
+          marginHorizontal: keyof L["spacing"];
+          marginRight: keyof L["spacing"];
+          marginLeft: keyof L["spacing"];
+          marginTop: keyof L["spacing"];
+          marginBottom: keyof L["spacing"];
+          // paddings
+          padding: keyof L["spacing"];
+          paddingVertical: keyof L["spacing"];
+          paddingHorizontal: keyof L["spacing"];
+          paddingRight: keyof L["spacing"];
+          paddingLeft: keyof L["spacing"];
+          paddingTop: keyof L["spacing"];
+          paddingBottom: keyof L["spacing"];
+        }>
+    >,
   };
 };

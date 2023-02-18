@@ -9,6 +9,10 @@ const dynamicThemeProps = [
     name: "backgroundColor",
     themeKey: "colors",
   },
+  {
+    name: "color",
+    themeKey: "colors",
+  },
   // spacing
   {
     name: "margin",
@@ -247,7 +251,9 @@ export default function (babel) {
         path.traverse({
           JSXElement(nodePath) {
             const openingElement = nodePath.node.openingElement;
-            if (openingElement.name.name === "ThemedView") {
+            if (
+              ["ThemedView", "ThemedText"].includes(openingElement.name.name)
+            ) {
               // split component props
               const [styledProps, nativeProps] = getComponentProps(
                 t,

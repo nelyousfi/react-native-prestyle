@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Button, SafeAreaView, useWindowDimensions} from 'react-native';
 
 import {
-  Text,
+  ThemedText,
   ThemeProvider,
   ThemedView,
   useTheme,
@@ -15,22 +15,26 @@ const Component = () => {
   const breakPoint = useBreakPoint();
 
   return (
-    <ThemedView flex={1} alignItems="center" justifyContent="center">
+    <ThemedView
+      flex={1}
+      backgroundColor={'background'}
+      alignItems="center"
+      justifyContent="center">
       <ThemedView
-        backgroundColor="primary"
-        padding={'s'}
+        marginBottom={'s'}
         style={{
           backgroundColor: theme.colors.secondary,
+          padding: theme.spacing.s[breakPoint],
         }}
         borderRadius={8}>
-        <Text>Hello, I am working!</Text>
+        <ThemedText color={'text'}>Hello, I am working!</ThemedText>
       </ThemedView>
       <ThemedView
         flexDirection="row"
         flexWrap="wrap"
         gap={2}
         style={{margin: 20}}>
-        {Array.from({length: 100}).map((_, i) => {
+        {Array.from({length: 145}).map((_, i) => {
           const backgroundColor = i % 2 === 0 ? 'primary' : 'secondary';
           return (
             <ThemedView
@@ -42,6 +46,9 @@ const Component = () => {
           );
         })}
       </ThemedView>
+      <ThemedText color={'text'} fontWeight={'bold'}>
+        Hello, I am another text!
+      </ThemedText>
     </ThemedView>
   );
 };
