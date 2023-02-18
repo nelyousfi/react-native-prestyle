@@ -1,15 +1,19 @@
 import React, {useState} from 'react';
 import {Button, SafeAreaView} from 'react-native';
 
-import {Text, ThemeProvider, ThemedView} from './theme';
+import {Text, ThemeProvider, ThemedView, useTheme} from './theme';
 
 const Component = () => {
+  const theme = useTheme();
   return (
     <ThemedView flex={1} alignItems="center" justifyContent="center">
       <ThemedView
         backgroundColor="primary"
         marginBottom={'m'}
         padding="s"
+        style={{
+          backgroundColor: theme.colors.secondary,
+        }}
         borderRadius={8}>
         <Text>Hello, I am working!</Text>
       </ThemedView>

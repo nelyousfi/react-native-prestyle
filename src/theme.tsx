@@ -6,14 +6,17 @@ import React, {
 } from "react";
 import { Text, View, ViewProps, ViewStyle } from "react-native";
 
-export type Theme = {
-  colors: Record<string, string>;
-  spacing: Record<string, number>;
-};
+type BreakPoints = Record<string, number | { width: number; height: number }>;
+
+export interface Theme<BP extends BreakPoints> {
+  colors: Record<string, string | { [Key in keyof BP]: string }>;
+  spacing: Record<string, number | { [Key in keyof BP]: number }>;
+  breakPoints: BP;
+}
 
 const ThemeContext = createContext({} as any);
 
-export const useTheme = <T extends Theme>() => {
+export const useTheme = <BP extends BreakPoints, T extends Theme<BP>>() => {
   const context = useContext<T>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
@@ -22,7 +25,8 @@ export const useTheme = <T extends Theme>() => {
 };
 
 const buildThemeProvider = <
-  T extends Theme,
+  BP extends BreakPoints,
+  T extends Theme<BP>,
   Themes extends { light: T; dark: T }
 >(
   themes: Themes
@@ -42,17 +46,21 @@ const buildThemeProvider = <
   };
 };
 
-function buildUseTheme<T extends Theme>(): () => T {
+function buildUseTheme<BP extends BreakPoints, T extends Theme<BP>>(): () => T {
   return useTheme;
 }
 
-export const prestyle = <L extends Theme, D>(themes: {
-  light: L;
-  dark: L & D;
+export const prestyle = <
+  BP extends BreakPoints,
+  L extends Theme<BP>,
+  D
+>(themes: {
+  light: L & { breakPoints: BP };
+  dark: L & D & { breakPoints: BP };
 }) => {
   return {
-    useTheme: buildUseTheme<L>(),
-    ThemeProvider: buildThemeProvider<L, { light: L; dark: L }>(themes),
+    useTheme: buildUseTheme<BP, L>(),
+    ThemeProvider: buildThemeProvider<BP, L, { light: L; dark: L }>(themes),
     ThemedView: View as unknown as ComponentType<
       ViewProps &
         Omit<ViewStyle, "backgroundColor"> &

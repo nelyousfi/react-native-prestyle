@@ -7,9 +7,19 @@ const {useTheme, ThemeProvider, ThemedView, Text} = prestyle({
       secondary: 'crimson',
     },
     spacing: {
-      s: 8,
+      s: {
+        phone: 10,
+        tablet: 10,
+      },
       m: 16,
       l: 32,
+    },
+    breakPoints: {
+      phone: 0,
+      tablet: {
+        width: 100,
+        height: 200,
+      },
     },
   },
   dark: {
@@ -18,9 +28,19 @@ const {useTheme, ThemeProvider, ThemedView, Text} = prestyle({
       secondary: 'gold',
     },
     spacing: {
-      s: 8 * 2,
+      s: {
+        phone: 10,
+        tablet: 100,
+      },
       m: 16 * 2,
       l: 32 * 2,
+    },
+    breakPoints: {
+      phone: 0,
+      tablet: {
+        width: 100,
+        height: 100,
+      },
     },
   },
 });
