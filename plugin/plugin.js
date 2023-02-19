@@ -227,13 +227,6 @@ function buildStyle(t, openingElement, nativeProps, styledProps) {
   return hasStyleProp;
 }
 
-function debug(styledProps) {
-  styledProps.forEach((style) => {
-    console.log(`${style.key.name}::${style.value.extra.raw}`);
-  });
-  console.log("-----");
-}
-
 function injectStyleProp(t, openingElement, styledProps) {
   openingElement.attributes.unshift(
     t.jsxAttribute(
@@ -247,7 +240,7 @@ export default function (babel) {
   const t = babel.types;
   return {
     visitor: {
-      Program(path, state) {
+      Program(path) {
         path.traverse({
           JSXElement(nodePath) {
             const openingElement = nodePath.node.openingElement;
@@ -272,9 +265,6 @@ export default function (babel) {
                   nativeProps,
                   styledProps
                 );
-
-                // debug
-                state.opts.debug && debug(styledProps);
 
                 // add style prop if it does not exist
                 !hasStyleProp &&
