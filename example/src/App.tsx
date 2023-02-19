@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
-import {Button, SafeAreaView, useWindowDimensions} from 'react-native';
+import {Button, SafeAreaView} from 'react-native';
 
 import {
   ThemedText,
-  ThemeProvider,
   ThemedView,
-  useTheme,
+  ThemeProvider,
   useBreakPoint,
+  useTheme,
 } from './theme';
 
 const Component = () => {
@@ -57,7 +57,7 @@ export default () => {
   const [mode, setMode] = useState<'light' | 'dark'>('light');
 
   const toggleTheme = () => {
-    setMode(m => (mode === 'light' ? 'dark' : 'light'));
+    setMode(m => (m === 'light' ? 'dark' : 'light'));
   };
 
   return (

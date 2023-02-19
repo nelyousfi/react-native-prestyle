@@ -51,16 +51,16 @@ const buildThemeProvider = <
 >(
   themes: TS
 ) => {
-  return ({
+  return function ThemeProvider({
     mode = "light",
     children,
   }: {
     mode?: Exclude<keyof Themes<BP, T>, "breakPoints">;
     children: ReactNode;
-  }) => {
+  }) {
     const theme = useMemo<T>(() => {
       return themes[mode];
-    }, [mode, themes]);
+    }, [mode]);
 
     const { width } = useWindowDimensions();
 
@@ -75,7 +75,7 @@ const buildThemeProvider = <
         }
       }
       return breakPoint;
-    }, [themes, width]);
+    }, [width]);
 
     return (
       <ThemeContext.Provider value={{ mode, theme, breakPoint }}>
