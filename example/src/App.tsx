@@ -9,10 +9,14 @@ import {
   useTheme,
 } from './theme';
 
+const color = 'text';
+
 const Component = () => {
   const theme = useTheme();
 
   const breakPoint = useBreakPoint();
+
+  const [enabled, toggleEnabled] = useState(false);
 
   return (
     <ThemedView
@@ -21,14 +25,15 @@ const Component = () => {
       alignItems="center"
       justifyContent="center">
       <ThemedView
-        marginBottom={'s'}
+        marginBottom={enabled ? 'm' : 'l'}
         style={{
           backgroundColor: theme.colors.secondary,
           padding: theme.spacing.s[breakPoint],
         }}
         borderRadius={8}>
-        <ThemedText color={'text'}>Hello, I am working!</ThemedText>
+        <ThemedText color="text">Hello, I am working!</ThemedText>
       </ThemedView>
+      <Button title="Toggle Enabled" onPress={() => toggleEnabled(e => !e)} />
       <ThemedView
         flexDirection="row"
         flexWrap="wrap"
@@ -46,7 +51,7 @@ const Component = () => {
           );
         })}
       </ThemedView>
-      <ThemedText color={'text'} fontWeight={'bold'}>
+      <ThemedText color={color} fontWeight={'bold'}>
         Hello, I am another text!
       </ThemedText>
     </ThemedView>

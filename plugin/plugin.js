@@ -98,13 +98,9 @@ function getComponentProps(t, openingElement) {
                         t.identifier(dynamicProp["themeKey"])
                       ),
                       attribute.value.type === "JSXExpressionContainer"
-                        ? attribute.value.expression.type === "Identifier"
-                          ? attribute.value.expression
-                          : t.identifier(attribute.value.expression.value)
+                        ? attribute.value.expression
                         : t.identifier(attribute.value.value),
-                      // computed -> { backgroundColor={backgroundColor} }
-                      attribute.value.type === "JSXExpressionContainer" &&
-                        attribute.value.expression.type === "Identifier"
+                      attribute.value.type === "JSXExpressionContainer"
                     ),
                     true
                   ),
@@ -117,13 +113,9 @@ function getComponentProps(t, openingElement) {
                       t.identifier(dynamicProp["themeKey"])
                     ),
                     attribute.value.type === "JSXExpressionContainer"
-                      ? attribute.value.expression.type === "Identifier"
-                        ? attribute.value.expression
-                        : t.identifier(attribute.value.expression.value)
+                      ? attribute.value.expression
                       : t.identifier(attribute.value.value),
-                    // computed -> { backgroundColor={backgroundColor} }
-                    attribute.value.type === "JSXExpressionContainer" &&
-                      attribute.value.expression.type === "Identifier"
+                    attribute.value.type === "JSXExpressionContainer"
                   ),
                   t.identifier(useBreakPoint),
                   true
@@ -134,13 +126,9 @@ function getComponentProps(t, openingElement) {
                     t.identifier(dynamicProp["themeKey"])
                   ),
                   attribute.value.type === "JSXExpressionContainer"
-                    ? attribute.value.expression.type === "Identifier"
-                      ? attribute.value.expression
-                      : t.identifier(attribute.value.expression.value)
+                    ? attribute.value.expression
                     : t.identifier(attribute.value.value),
-                  // computed -> { backgroundColor={backgroundColor} }
-                  attribute.value.type === "JSXExpressionContainer" &&
-                    attribute.value.expression.type === "Identifier"
+                  attribute.value.type === "JSXExpressionContainer"
                 )
               )
             )
