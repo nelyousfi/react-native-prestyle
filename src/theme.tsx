@@ -20,7 +20,6 @@ type BreakPoints = Record<string, number>;
 export interface Theme<BP extends BreakPoints> {
   colors: Record<string, string | { [Key in keyof BP]: string }>;
   spacing: Record<string, number | { [Key in keyof BP]: number }>;
-  breakPoints: BP;
 }
 
 type ThemeContextType<BP extends BreakPoints, T extends Theme<BP>> = {
@@ -42,6 +41,7 @@ export const useTheme = <BP extends BreakPoints, T extends Theme<BP>>(): T => {
 type Themes<BP extends BreakPoints, T extends Theme<BP>> = {
   light: T;
   dark: T;
+  breakPoints: BP;
 };
 
 const buildThemeProvider = <
@@ -55,7 +55,7 @@ const buildThemeProvider = <
     mode = "light",
     children,
   }: {
-    mode?: keyof Themes<BP, T>;
+    mode?: Exclude<keyof Themes<BP, T>, "breakPoints">;
     children: ReactNode;
   }) => {
     const theme = useMemo<T>(() => {
@@ -65,8 +65,8 @@ const buildThemeProvider = <
     const { width } = useWindowDimensions();
 
     const breakPoint = useMemo(() => {
-      let breakPoint = Object.keys(theme.breakPoints)[0];
-      for (const [key, value] of sortObjectByValue(theme.breakPoints)) {
+      let breakPoint = Object.keys(themes.breakPoints)[0];
+      for (const [key, value] of sortObjectByValue(themes.breakPoints)) {
         if (key === breakPoint) continue;
         if (value <= width) {
           breakPoint = key;
@@ -75,7 +75,7 @@ const buildThemeProvider = <
         }
       }
       return breakPoint;
-    }, [theme, width]);
+    }, [themes, width]);
 
     return (
       <ThemeContext.Provider value={{ mode, theme, breakPoint }}>
@@ -122,13 +122,18 @@ export const prestyle = <
   L extends Theme<BP>,
   D
 >(themes: {
-  light: L & { breakPoints: BP };
+  light: L;
   dark: L & D;
+  breakPoints: BP;
 }) => {
   return {
     useTheme: buildUseTheme<BP, L>(),
     useBreakPoint: buildUseBreakPoint<BP>(),
-    ThemeProvider: buildThemeProvider<BP, L, { light: L; dark: L }>(themes),
+    ThemeProvider: buildThemeProvider<
+      BP,
+      L,
+      { light: L; dark: L; breakPoints: BP }
+    >(themes),
     ThemedView: View as unknown as ComponentType<
       ViewProps &
         ViewStyle &

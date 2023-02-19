@@ -17,10 +17,6 @@ const {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint} =
         m: 16,
         l: 32,
       },
-      breakPoints: {
-        phone: 0,
-        tablet: 100,
-      },
     },
     dark: {
       colors: {
@@ -37,10 +33,10 @@ const {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint} =
         m: 16 * 2,
         l: 32 * 2,
       },
-      breakPoints: {
-        phone: 0,
-        tablet: 100,
-      },
+    },
+    breakPoints: {
+      phone: 0,
+      tablet: 100,
     },
   });
 
