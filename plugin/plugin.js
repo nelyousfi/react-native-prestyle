@@ -72,6 +72,19 @@ const dynamicThemeProps = [
   },
 ];
 
+function buildThemeValue(t, attribute, dynamicProp) {
+  return t.memberExpression(
+    t.memberExpression(
+      t.identifier(useTheme),
+      t.identifier(dynamicProp["themeKey"])
+    ),
+    attribute.value.type === "JSXExpressionContainer"
+      ? attribute.value.expression
+      : t.identifier(attribute.value.value),
+    attribute.value.type === "JSXExpressionContainer"
+  );
+}
+
 function getComponentProps(t, openingElement) {
   return openingElement.attributes.reduce(
     (acc, attribute) => {
@@ -92,44 +105,17 @@ function getComponentProps(t, openingElement) {
                   "===",
                   t.unaryExpression(
                     "typeof",
-                    t.memberExpression(
-                      t.memberExpression(
-                        t.identifier(useTheme),
-                        t.identifier(dynamicProp["themeKey"])
-                      ),
-                      attribute.value.type === "JSXExpressionContainer"
-                        ? attribute.value.expression
-                        : t.identifier(attribute.value.value),
-                      attribute.value.type === "JSXExpressionContainer"
-                    ),
+                    buildThemeValue(t, attribute, dynamicProp),
                     true
                   ),
                   t.stringLiteral("object")
                 ),
                 t.memberExpression(
-                  t.memberExpression(
-                    t.memberExpression(
-                      t.identifier(useTheme),
-                      t.identifier(dynamicProp["themeKey"])
-                    ),
-                    attribute.value.type === "JSXExpressionContainer"
-                      ? attribute.value.expression
-                      : t.identifier(attribute.value.value),
-                    attribute.value.type === "JSXExpressionContainer"
-                  ),
+                  buildThemeValue(t, attribute, dynamicProp),
                   t.identifier(useBreakPoint),
                   true
                 ),
-                t.memberExpression(
-                  t.memberExpression(
-                    t.identifier(useTheme),
-                    t.identifier(dynamicProp["themeKey"])
-                  ),
-                  attribute.value.type === "JSXExpressionContainer"
-                    ? attribute.value.expression
-                    : t.identifier(attribute.value.value),
-                  attribute.value.type === "JSXExpressionContainer"
-                )
+                buildThemeValue(t, attribute, dynamicProp)
               )
             )
           );
