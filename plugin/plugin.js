@@ -182,26 +182,10 @@ function buildStyle(t, openingElement, nativeProps, styledProps) {
   openingElement.attributes = nativeProps.map((attribute) => {
     if (t.isJSXAttribute(attribute) && attribute.name.name === "style") {
       hasStyleProp = true;
-      let expression;
-      if (t.isMemberExpression(attribute.value.expression)) {
-        // style={styles.container} => style={[styleObjectProperties, styles.container]}
-        expression = t.arrayExpression([
-          t.objectExpression(styledProps),
-          attribute.value.expression,
-        ]);
-      } else if (t.isArrayExpression(attribute.value.expression)) {
-        // style={[...]} => append the new style properties to the start the array
-        expression = t.arrayExpression([
-          t.objectExpression(styledProps),
-          ...attribute.value.expression.elements,
-        ]);
-      } else if (t.isObjectExpression(attribute.value.expression)) {
-        // style={{...}} => append the new style properties to the start of the object
-        expression = t.objectExpression([
-          ...styledProps,
-          ...attribute.value.expression.properties,
-        ]);
-      }
+      const expression = t.arrayExpression([
+        t.objectExpression(styledProps),
+        attribute.value.expression,
+      ]);
       return {
         ...attribute,
         value: {
