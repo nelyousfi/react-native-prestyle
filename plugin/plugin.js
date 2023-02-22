@@ -2,6 +2,7 @@ import reactNativeStyleAttributes from "react-native/Libraries/Components/View/R
 
 const useTheme = "theme______";
 const useBreakPoint = "breakPoint______";
+const useViewVariants = "viewVariants______";
 
 const dynamicThemeProps = [
   // colors
@@ -91,7 +92,107 @@ function getComponentProps(t, openingElement) {
       if (t.isJSXAttribute(attribute)) {
         const propName = attribute.name.name;
         let dynamicProp;
-        if (
+        if (propName === "variant") {
+          acc[2] = t.callExpression(
+            t.memberExpression(
+              t.callExpression(
+                t.memberExpression(
+                  t.identifier("Object"),
+                  t.identifier("entries")
+                ),
+                [
+                  t.memberExpression(
+                    t.identifier(useViewVariants),
+                    attribute.value.type === "JSXExpressionContainer"
+                      ? attribute.value.expression
+                      : attribute.value,
+                    true
+                  ),
+                ]
+              ),
+              t.identifier("reduce")
+            ),
+            [
+              t.arrowFunctionExpression(
+                [
+                  t.identifier("acc"),
+                  t.ArrayPattern([t.identifier("key"), t.identifier("value")]),
+                ],
+                t.blockStatement([
+                  t.variableDeclaration("const", [
+                    t.variableDeclarator(
+                      t.identifier("dynamicThemeProps"),
+                      t.arrayExpression(
+                        dynamicThemeProps.map((prop) =>
+                          t.objectExpression([
+                            t.objectProperty(
+                              t.identifier("name"),
+                              t.stringLiteral(prop.name)
+                            ),
+                            t.objectProperty(
+                              t.identifier("themeKey"),
+                              t.stringLiteral(prop.themeKey)
+                            ),
+                          ])
+                        )
+                      )
+                    ),
+                  ]),
+                  t.variableDeclaration("const", [
+                    t.variableDeclarator(
+                      t.identifier("dynamicThemeProp"),
+                      t.callExpression(
+                        t.memberExpression(
+                          t.identifier("dynamicThemeProps"),
+                          t.identifier("find")
+                        ),
+                        [
+                          t.arrowFunctionExpression(
+                            [t.identifier("prop")],
+                            t.binaryExpression(
+                              "===",
+                              t.memberExpression(
+                                t.identifier("prop"),
+                                t.identifier("name")
+                              ),
+                              t.identifier("key")
+                            )
+                          ),
+                        ]
+                      )
+                    ),
+                  ]),
+                  t.returnStatement(
+                    t.objectExpression([
+                      t.spreadElement(t.identifier("acc")),
+                      t.objectProperty(
+                        t.identifier("key"),
+                        t.conditionalExpression(
+                          t.identifier("dynamicThemeProp"),
+                          t.memberExpression(
+                            t.memberExpression(
+                              t.identifier(useTheme),
+                              t.memberExpression(
+                                t.identifier("dynamicThemeProp"),
+                                t.identifier("themeKey")
+                              ),
+                              true
+                            ),
+                            t.identifier("value"),
+                            true
+                          ),
+                          t.identifier("value")
+                        ),
+                        true
+                      ),
+                    ])
+                  ),
+                ])
+              ),
+              t.objectExpression([]),
+            ]
+          );
+        } else if (
           (dynamicProp = dynamicThemeProps.find(
             ({ name }) => name === propName
           ))
@@ -133,10 +234,10 @@ function getComponentProps(t, openingElement) {
         } else {
           acc[1].push(attribute);
         }
-        return acc;
       }
+      return acc;
     },
-    [[], []]
+    [[], [], t.objectExpression([])]
   );
 }
 
@@ -163,13 +264,14 @@ function injectFunction(t, nodePath, name, functionName) {
   );
 }
 
-function buildStyle(t, openingElement, nativeProps, styledProps) {
+function buildStyle(t, openingElement, nativeProps, styledProps, variant) {
   let hasStyleProp = false;
   openingElement.attributes = nativeProps.map((attribute) => {
     if (t.isJSXAttribute(attribute) && attribute.name.name === "style") {
       hasStyleProp = true;
       const expression = t.arrayExpression([
         t.objectExpression(styledProps),
+        variant,
         attribute.value.expression,
       ]);
       return {
@@ -185,11 +287,13 @@ function buildStyle(t, openingElement, nativeProps, styledProps) {
   return hasStyleProp;
 }
 
-function injectStyleProp(t, openingElement, styledProps) {
+function injectStyleProp(t, openingElement, styledProps, variant) {
   openingElement.attributes.unshift(
     t.jsxAttribute(
       t.jsxIdentifier("style"),
-      t.jsxExpressionContainer(t.objectExpression(styledProps))
+      t.jsxExpressionContainer(
+        t.arrayExpression([t.objectExpression(styledProps), variant])
+      )
     )
   );
 }
@@ -205,28 +309,36 @@ export default function (babel) {
             if (
               ["ThemedView", "ThemedText"].includes(openingElement.name.name)
             ) {
-              // split component props
-              const [styledProps, nativeProps] = getComponentProps(
+              const [styledProps, nativeProps, variant] = getComponentProps(
                 t,
                 openingElement
               );
-              if (styledProps.length > 0) {
+              if (styledProps.length > 0 || variant) {
+                // we can import this directly from the context
                 importNamed(t, path, "react-native-prestyle", "useTheme");
                 importNamed(t, path, "react-native-prestyle", "useBreakPoint");
+                importNamed(
+                  t,
+                  path,
+                  "react-native-prestyle",
+                  "useViewVariants"
+                );
                 injectFunction(t, nodePath, useTheme, "useTheme");
                 injectFunction(t, nodePath, useBreakPoint, "useBreakPoint");
+                injectFunction(t, nodePath, useViewVariants, "useViewVariants");
 
                 // build the style prop
                 const hasStyleProp = buildStyle(
                   t,
                   openingElement,
                   nativeProps,
-                  styledProps
+                  styledProps,
+                  variant
                 );
 
                 // add style prop if it does not exist
                 !hasStyleProp &&
-                  injectStyleProp(t, openingElement, styledProps);
+                  injectStyleProp(t, openingElement, styledProps, variant);
               }
             }
           },

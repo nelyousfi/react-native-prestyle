@@ -26,6 +26,7 @@ type ThemeContextType<BP extends BreakPoints, T extends Theme<BP>> = {
   theme: T;
   mode: keyof Themes<BP, T>;
   breakPoint: keyof BP;
+  viewVariants: Record<string, ThemedViewStyleProps<BP, T>>;
 };
 
 const ThemeContext = createContext<ThemeContextType<any, any>>({} as any);
@@ -42,6 +43,7 @@ type Themes<BP extends BreakPoints, T extends Theme<BP>> = {
   light: T;
   dark: T;
   breakPoints: BP;
+  viewVariants: Record<string, ThemedViewStyleProps<BP, T>>;
 };
 
 const buildThemeProvider = <
@@ -55,7 +57,7 @@ const buildThemeProvider = <
     mode = "light",
     children,
   }: {
-    mode?: Exclude<keyof Themes<BP, T>, "breakPoints">;
+    mode?: Exclude<keyof Themes<BP, T>, "breakPoints" | "viewVariants">;
     children: ReactNode;
   }) {
     const theme = useMemo<T>(() => {
@@ -78,7 +80,9 @@ const buildThemeProvider = <
     }, [width]);
 
     return (
-      <ThemeContext.Provider value={{ mode, theme, breakPoint }}>
+      <ThemeContext.Provider
+        value={{ mode, theme, breakPoint, viewVariants: themes.viewVariants }}
+      >
         {children}
       </ThemeContext.Provider>
     );
@@ -117,6 +121,42 @@ function buildUseBreakPoint<BP extends BreakPoints>(): () => keyof BP {
   return useBreakPoint;
 }
 
+export const useViewVariants = <
+  BP extends BreakPoints,
+  T extends Theme<BP>
+>(): Record<string, ThemedViewStyleProps<BP, T>> => {
+  const context = useContext<ThemeContextType<BP, T>>(ThemeContext);
+  if (!context) {
+    throw Error("Make sure to wrap your component with ThemeProvider!");
+  }
+  return context.viewVariants;
+};
+
+type ThemedViewStyleProps<
+  BP extends BreakPoints,
+  T extends Theme<BP>
+> = ViewStyle &
+  Partial<{
+    // colors
+    backgroundColor: keyof T["colors"];
+    // margins
+    margin: keyof T["spacing"];
+    marginVertical: keyof T["spacing"];
+    marginHorizontal: keyof T["spacing"];
+    marginRight: keyof T["spacing"];
+    marginLeft: keyof T["spacing"];
+    marginTop: keyof T["spacing"];
+    marginBottom: keyof T["spacing"];
+    // paddings
+    padding: keyof T["spacing"];
+    paddingVertical: keyof T["spacing"];
+    paddingHorizontal: keyof T["spacing"];
+    paddingRight: keyof T["spacing"];
+    paddingLeft: keyof T["spacing"];
+    paddingTop: keyof T["spacing"];
+    paddingBottom: keyof T["spacing"];
+  }>;
+
 export const prestyle = <
   BP extends BreakPoints,
   L extends Theme<BP>,
@@ -125,6 +165,7 @@ export const prestyle = <
   light: L;
   dark: L & D;
   breakPoints: BP;
+  viewVariants: Record<string, ThemedViewStyleProps<BP, L>>;
 }) => {
   return {
     useTheme: buildUseTheme<BP, L>(),
@@ -132,31 +173,15 @@ export const prestyle = <
     ThemeProvider: buildThemeProvider<
       BP,
       L,
-      { light: L; dark: L; breakPoints: BP }
+      {
+        light: L;
+        dark: L;
+        breakPoints: BP;
+        viewVariants: Record<string, ThemedViewStyleProps<BP, L>>;
+      }
     >(themes),
     ThemedView: View as unknown as ComponentType<
-      ViewProps &
-        ViewStyle &
-        Partial<{
-          // colors
-          backgroundColor: keyof L["colors"];
-          // margins
-          margin: keyof L["spacing"];
-          marginVertical: keyof L["spacing"];
-          marginHorizontal: keyof L["spacing"];
-          marginRight: keyof L["spacing"];
-          marginLeft: keyof L["spacing"];
-          marginTop: keyof L["spacing"];
-          marginBottom: keyof L["spacing"];
-          // paddings
-          padding: keyof L["spacing"];
-          paddingVertical: keyof L["spacing"];
-          paddingHorizontal: keyof L["spacing"];
-          paddingRight: keyof L["spacing"];
-          paddingLeft: keyof L["spacing"];
-          paddingTop: keyof L["spacing"];
-          paddingBottom: keyof L["spacing"];
-        }>
+      ViewProps & ThemedViewStyleProps<BP, L>
     >,
     ThemedText: Text as unknown as ComponentType<
       TextProps &

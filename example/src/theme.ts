@@ -38,6 +38,23 @@ const {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint} =
       phone: 0,
       tablet: 100,
     },
+    viewVariants: {
+      card: {
+        borderRadius: 8,
+        backgroundColor: 'primary',
+        padding: 'l',
+      },
+      circle: {
+        height: 100,
+        width: 100,
+        borderRadius: 50,
+        backgroundColor: 'secondary',
+      },
+      bold: {
+        fontWeight: 'bold',
+        color: 'secondary',
+      },
+    },
   });
 
 export {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint};

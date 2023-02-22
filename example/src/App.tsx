@@ -25,14 +25,21 @@ const Component = () => {
       alignItems="center"
       justifyContent="center">
       <ThemedView
+        variant={'card'}
         marginBottom={enabled ? 'm' : 'l'}
-        style={{
-          backgroundColor: theme.colors.secondary,
-          padding: theme.spacing.s[breakPoint],
-        }}
+        style={[
+          {
+            padding: theme.spacing.s[breakPoint],
+          },
+        ]}
         borderRadius={8}>
-        <ThemedText color="text">Hello, I am working!</ThemedText>
+        <ThemedText variant="bold">  Hello, I am working!</ThemedText>
       </ThemedView>
+      <ThemedView
+        variant="circle"
+        marginBottom={enabled ? 'm' : 'l'}
+        borderRadius={8}
+      />
       <Button title="Toggle Enabled" onPress={() => toggleEnabled(e => !e)} />
       <ThemedView
         flexDirection="row"
