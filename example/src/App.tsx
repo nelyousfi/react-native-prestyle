@@ -33,7 +33,7 @@ const Component = () => {
           },
         ]}
         borderRadius={8}>
-        <ThemedText>  Hello, I am working!</ThemedText>
+        <ThemedText variant="bold">  Hello, I am working!</ThemedText>
       </ThemedView>
       <ThemedView
         variant="circle"

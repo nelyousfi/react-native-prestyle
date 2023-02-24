@@ -51,6 +51,12 @@ const {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint} =
         backgroundColor: 'secondary',
       },
     },
+    textVariants: {
+      bold: {
+        fontWeight: 'bold',
+        color: 'text',
+      },
+    },
   });
 
 export {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint};

@@ -3,6 +3,7 @@ import reactNativeStyleAttributes from "react-native/Libraries/Components/View/R
 const useTheme = "theme______";
 const useBreakPoint = "breakPoint______";
 const useViewVariants = "viewVariants______";
+const useTextVariants = "textVariants______";
 
 const dynamicThemeProps = [
   // colors
@@ -86,7 +87,7 @@ function buildThemeValue(t, attribute, dynamicProp) {
   );
 }
 
-function getComponentProps(t, openingElement) {
+function getComponentProps(t, openingElement, isThemedView) {
   return openingElement.attributes.reduce(
     (acc, attribute) => {
       if (t.isJSXAttribute(attribute)) {
@@ -102,7 +103,9 @@ function getComponentProps(t, openingElement) {
                 ),
                 [
                   t.memberExpression(
-                    t.identifier(useViewVariants),
+                    t.identifier(
+                      isThemedView ? useViewVariants : useTextVariants
+                    ),
                     attribute.value.type === "JSXExpressionContainer"
                       ? attribute.value.expression
                       : attribute.value,
@@ -309,23 +312,44 @@ export default function (babel) {
             if (
               ["ThemedView", "ThemedText"].includes(openingElement.name.name)
             ) {
+              const isThemedView = openingElement.name.name === "ThemedView";
               const [styledProps, nativeProps, variant] = getComponentProps(
                 t,
-                openingElement
+                openingElement,
+                isThemedView
               );
               if (styledProps.length > 0 || variant) {
                 // we can import this directly from the context
                 importNamed(t, path, "react-native-prestyle", "useTheme");
                 importNamed(t, path, "react-native-prestyle", "useBreakPoint");
-                importNamed(
-                  t,
-                  path,
-                  "react-native-prestyle",
-                  "useViewVariants"
-                );
+                isThemedView
+                  ? importNamed(
+                      t,
+                      path,
+                      "react-native-prestyle",
+                      "useViewVariants"
+                    )
+                  : importNamed(
+                      t,
+                      path,
+                      "react-native-prestyle",
+                      "useTextVariants"
+                    );
                 injectFunction(t, nodePath, useTheme, "useTheme");
                 injectFunction(t, nodePath, useBreakPoint, "useBreakPoint");
-                injectFunction(t, nodePath, useViewVariants, "useViewVariants");
+                isThemedView
+                  ? injectFunction(
+                      t,
+                      nodePath,
+                      useViewVariants,
+                      "useViewVariants"
+                    )
+                  : injectFunction(
+                      t,
+                      nodePath,
+                      useTextVariants,
+                      "useTextVariants"
+                    );
 
                 // build the style prop
                 const hasStyleProp = buildStyle(
