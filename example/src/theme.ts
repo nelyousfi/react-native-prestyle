@@ -50,10 +50,6 @@ const {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint} =
         borderRadius: 50,
         backgroundColor: 'secondary',
       },
-      bold: {
-        fontWeight: 'bold',
-        color: 'secondary',
-      },
     },
   });
 

@@ -22,34 +22,47 @@ export interface Theme<BP extends BreakPoints> {
   spacing: Record<string, number | { [Key in keyof BP]: number }>;
 }
 
-type ThemeContextType<BP extends BreakPoints, T extends Theme<BP>> = {
+type ThemeContextType<
+  BP extends BreakPoints,
+  T extends Theme<BP>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T>>
+> = {
   theme: T;
-  mode: keyof Themes<BP, T>;
+  mode: keyof Themes<BP, T, VV>;
   breakPoint: keyof BP;
-  viewVariants: Record<string, ThemedViewStyleProps<BP, T>>;
+  viewVariants: VV;
 };
 
-const ThemeContext = createContext<ThemeContextType<any, any>>({} as any);
+const ThemeContext = createContext<ThemeContextType<any, any, any>>({} as any);
 
-export const useTheme = <BP extends BreakPoints, T extends Theme<BP>>(): T => {
-  const context = useContext<ThemeContextType<BP, T>>(ThemeContext);
+export const useTheme = <
+  BP extends BreakPoints,
+  T extends Theme<BP>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T>>
+>(): T => {
+  const context = useContext<ThemeContextType<BP, T, VV>>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
   }
   return context.theme;
 };
 
-type Themes<BP extends BreakPoints, T extends Theme<BP>> = {
+type Themes<
+  BP extends BreakPoints,
+  T extends Theme<BP>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T>>
+> = {
   light: T;
   dark: T;
   breakPoints: BP;
-  viewVariants: Record<string, ThemedViewStyleProps<BP, T>>;
+  viewVariants: VV;
 };
 
 const buildThemeProvider = <
   BP extends BreakPoints,
   T extends Theme<BP>,
-  TS extends Themes<BP, T>
+  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
+  TS extends Themes<BP, T, VV>
 >(
   themes: TS
 ) => {
@@ -57,7 +70,7 @@ const buildThemeProvider = <
     mode = "light",
     children,
   }: {
-    mode?: Exclude<keyof Themes<BP, T>, "breakPoints" | "viewVariants">;
+    mode?: Exclude<keyof Themes<BP, T, VV>, "breakPoints" | "viewVariants">;
     children: ReactNode;
   }) {
     const theme = useMemo<T>(() => {
@@ -108,9 +121,10 @@ function sortObjectByValue<T>(obj: Record<string, T>): Array<[string, T]> {
 
 export const useBreakPoint = <
   BP extends BreakPoints,
-  T extends Theme<BP>
+  T extends Theme<BP>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T>>
 >(): keyof BP => {
-  const context = useContext<ThemeContextType<BP, T>>(ThemeContext);
+  const context = useContext<ThemeContextType<BP, T, VV>>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
   }
@@ -123,9 +137,10 @@ function buildUseBreakPoint<BP extends BreakPoints>(): () => keyof BP {
 
 export const useViewVariants = <
   BP extends BreakPoints,
-  T extends Theme<BP>
+  T extends Theme<BP>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T>>
 >(): Record<string, ThemedViewStyleProps<BP, T>> => {
-  const context = useContext<ThemeContextType<BP, T>>(ThemeContext);
+  const context = useContext<ThemeContextType<BP, T, VV>>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
   }
@@ -160,12 +175,13 @@ type ThemedViewStyleProps<
 export const prestyle = <
   BP extends BreakPoints,
   L extends Theme<BP>,
+  VV extends Record<string, ThemedViewStyleProps<BP, L>>,
   D
 >(themes: {
   light: L;
   dark: L & D;
   breakPoints: BP;
-  viewVariants: Record<string, ThemedViewStyleProps<BP, L>>;
+  viewVariants: VV;
 }) => {
   return {
     useTheme: buildUseTheme<BP, L>(),
@@ -173,15 +189,16 @@ export const prestyle = <
     ThemeProvider: buildThemeProvider<
       BP,
       L,
+      VV,
       {
         light: L;
         dark: L;
         breakPoints: BP;
-        viewVariants: Record<string, ThemedViewStyleProps<BP, L>>;
+        viewVariants: VV;
       }
     >(themes),
     ThemedView: View as unknown as ComponentType<
-      ViewProps & ThemedViewStyleProps<BP, L>
+      ViewProps & ThemedViewStyleProps<BP, L> & Partial<{ variant?: keyof VV }>
     >,
     ThemedText: Text as unknown as ComponentType<
       TextProps &
