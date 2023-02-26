@@ -52,6 +52,19 @@ export const useTheme = <
   return context.theme;
 };
 
+export const usePrestyle = <
+  BP extends BreakPoints,
+  T extends Theme<BP>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T>>
+>(): ThemeContextType<BP, T, VV, TV> => {
+  const context = useContext<ThemeContextType<BP, T, VV, TV>>(ThemeContext);
+  if (!context) {
+    throw Error("Make sure to wrap your component with ThemeProvider!");
+  }
+  return context;
+};
+
 type Themes<
   BP extends BreakPoints,
   T extends Theme<BP>,

@@ -1,42 +1,37 @@
 import React, {useState} from 'react';
 import {Button, SafeAreaView} from 'react-native';
+import {usePrestyle} from 'react-native-prestyle';
 
-import {
-  ThemedText,
-  ThemedView,
-  ThemeProvider,
-  useBreakPoint,
-  useTheme,
-} from './theme';
+import {ThemedText, ThemedView, ThemeProvider} from './theme';
 
 const color = 'text';
 
 const Component = () => {
-  const theme = useTheme();
-
-  const breakPoint = useBreakPoint();
-
   const [enabled, toggleEnabled] = useState(false);
+
+  const {theme, breakPoint, viewVariants, textVariants} = usePrestyle();
+
+  const spacing = theme.spacing.m;
+
+  console.log({
+    theme,
+  });
 
   return (
     <ThemedView
       flex={1}
-      backgroundColor={'background'}
+      backgroundColor="background"
       alignItems="center"
       justifyContent="center">
       <ThemedView
         variant={'card'}
         marginBottom={enabled ? 'm' : 'l'}
-        style={[
-          {
-            padding: theme.spacing.s[breakPoint],
-          },
-        ]}
         borderRadius={8}>
         <ThemedText variant="bold">  Hello, I am working!</ThemedText>
       </ThemedView>
       <ThemedView
         variant="circle"
+        backgroundColor="primary"
         marginBottom={enabled ? 'm' : 'l'}
         borderRadius={8}
       />
@@ -52,7 +47,6 @@ const Component = () => {
             <ThemedView
               key={`key_${i}`}
               height={10}
-              aspectRatio="1"
               backgroundColor={backgroundColor}
             />
           );
