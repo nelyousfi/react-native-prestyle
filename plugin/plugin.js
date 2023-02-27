@@ -1,5 +1,5 @@
 import reactNativeStyleAttributes from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
-import * as parser from "@babel/parser";
+import { parse } from "@babel/parser";
 import generate from "@babel/generator";
 
 const theme = "theme______";
@@ -7,6 +7,7 @@ const breakPoint = "breakPoint______";
 const viewVariants = "viewVariants______";
 const textVariants = "textVariants______";
 
+// TODO: import this from outside
 const dynamicThemeProps = [
   // colors
   {
@@ -76,17 +77,12 @@ const dynamicThemeProps = [
   },
 ];
 
-function buildThemeValue(t, attribute, dynamicProp) {
-  return t.memberExpression(
-    t.memberExpression(
-      t.identifier(theme),
-      t.identifier(dynamicProp["themeKey"])
-    ),
-    attribute.value.type === "JSXExpressionContainer"
-      ? attribute.value.expression
-      : t.identifier(attribute.value.value),
-    attribute.value.type === "JSXExpressionContainer"
-  );
+function parseCode(code) {
+  const ast = parse(code, {
+    sourceType: "module",
+    plugins: ["jsx"],
+  });
+  return ast.program.body[0];
 }
 
 function generateCodeFromValue(t, attribute) {
@@ -95,221 +91,6 @@ function generateCodeFromValue(t, attribute) {
     : attribute.value;
   const code = generate(value);
   return code.code;
-}
-
-function buildStyleProp(t, openingElement) {
-  const isThemedView = openingElement.name.name === "ThemedView";
-  const dynamicProps = openingElement.attributes.reduce((acc, attribute) => {
-    const propName = attribute.name.name;
-    let dynamicProp;
-    if (propName === "variant") {
-      return `{
-        ...${acc},
-        ...Object.entries(${
-          isThemedView ? viewVariants : textVariants
-        }[${generateCodeFromValue(t, attribute)}]).reduce((acc2, [k, v]) => {
-          const dynamicProps = [${dynamicThemeProps.map((prop) =>
-            JSON.stringify(prop)
-          )}]
-          const dynamicProp = dynamicProps.find(prop => prop.name === k);
-          return {
-            ...acc2,
-            [k]: dynamicProp ? ${theme}[dynamicProp.themeKey][v] : v,
-          };
-        }, {}),
-      }`;
-    } else if (
-      (dynamicProp = dynamicThemeProps.find(({ name }) => name === propName))
-    ) {
-      return `{
-        ...${acc},
-        ${propName}: ${theme}.${
-        dynamicProp["themeKey"]
-      }[${generateCodeFromValue(t, attribute)}],
-      }`;
-    } else if (reactNativeStyleAttributes[propName]) {
-      return `{
-        ...${acc},
-        ${propName}: ${generateCodeFromValue(t, attribute)},
-      }`;
-    } else if (propName === "style") {
-      return `{
-        ...${acc},
-        ...${generateCodeFromValue(t, attribute)},
-      }`;
-    }
-    return acc;
-  }, "{}");
-  console.log({
-    dynamicProps,
-  });
-  const code = `
-    [
-      ${dynamicProps}
-    ]
-  `;
-  return parseCode(code).expression;
-
-  // return openingElement.attributes.reduce(
-  //   (acc, attribute) => {
-  //     if (t.isJSXAttribute(attribute)) {
-  //       const propName = attribute.name.name;
-  //       let dynamicProp;
-  //       if (propName === "variant") {
-  //         acc[2] = t.callExpression(
-  //           t.memberExpression(
-  //             t.callExpression(
-  //               t.memberExpression(
-  //                 t.identifier("Object"),
-  //                 t.identifier("entries")
-  //               ),
-  //               [
-  //                 t.memberExpression(
-  //                   t.identifier(isThemedView ? viewVariants : textVariants),
-  //                   attribute.value.type === "JSXExpressionContainer"
-  //                     ? attribute.value.expression
-  //                     : attribute.value,
-  //                   true
-  //                 ),
-  //               ]
-  //             ),
-  //             t.identifier("reduce")
-  //           ),
-  //           [
-  //             t.arrowFunctionExpression(
-  //               [
-  //                 t.identifier("acc"),
-  //                 t.ArrayPattern([t.identifier("key"), t.identifier("value")]),
-  //               ],
-  //               t.blockStatement([
-  //                 t.variableDeclaration("const", [
-  //                   t.variableDeclarator(
-  //                     t.identifier("dynamicThemeProps"),
-  //                     t.arrayExpression(
-  //                       dynamicThemeProps.map((prop) =>
-  //                         t.objectExpression([
-  //                           t.objectProperty(
-  //                             t.identifier("name"),
-  //                             t.stringLiteral(prop.name)
-  //                           ),
-  //                           t.objectProperty(
-  //                             t.identifier("themeKey"),
-  //                             t.stringLiteral(prop.themeKey)
-  //                           ),
-  //                         ])
-  //                       )
-  //                     )
-  //                   ),
-  //                 ]),
-  //                 t.variableDeclaration("const", [
-  //                   t.variableDeclarator(
-  //                     t.identifier("dynamicThemeProp"),
-  //                     t.callExpression(
-  //                       t.memberExpression(
-  //                         t.identifier("dynamicThemeProps"),
-  //                         t.identifier("find")
-  //                       ),
-  //                       [
-  //                         t.arrowFunctionExpression(
-  //                           [t.identifier("prop")],
-  //                           t.binaryExpression(
-  //                             "===",
-  //                             t.memberExpression(
-  //                               t.identifier("prop"),
-  //                               t.identifier("name")
-  //                             ),
-  //                             t.identifier("key")
-  //                           )
-  //                         ),
-  //                       ]
-  //                     )
-  //                   ),
-  //                 ]),
-  //                 t.returnStatement(
-  //                   t.objectExpression([
-  //                     t.spreadElement(t.identifier("acc")),
-  //                     t.objectProperty(
-  //                       t.identifier("key"),
-  //                       t.conditionalExpression(
-  //                         t.identifier("dynamicThemeProp"),
-  //                         t.memberExpression(
-  //                           t.memberExpression(
-  //                             t.identifier(theme),
-  //                             t.memberExpression(
-  //                               t.identifier("dynamicThemeProp"),
-  //                               t.identifier("themeKey")
-  //                             ),
-  //                             true
-  //                           ),
-  //                           t.identifier("value"),
-  //                           true
-  //                         ),
-  //                         t.identifier("value")
-  //                       ),
-  //                       true
-  //                     ),
-  //                   ])
-  //                 ),
-  //               ])
-  //             ),
-  //             t.objectExpression([]),
-  //           ]
-  //         );
-  //       } else if (
-  //         (dynamicProp = dynamicThemeProps.find(
-  //           ({ name }) => name === propName
-  //         ))
-  //       ) {
-  //         acc[0].push(
-  //           t.objectProperty(
-  //             t.identifier(propName),
-  //             // typeof theme.spacing.s === 'object' ? theme.spacing.s[breakPoint] : theme.spacing.s;
-  //             t.conditionalExpression(
-  //               t.binaryExpression(
-  //                 "===",
-  //                 t.unaryExpression(
-  //                   "typeof",
-  //                   buildThemeValue(t, attribute, dynamicProp),
-  //                   true
-  //                 ),
-  //                 t.stringLiteral("object")
-  //               ),
-  //               t.memberExpression(
-  //                 buildThemeValue(t, attribute, dynamicProp),
-  //                 t.identifier(breakPoint),
-  //                 true
-  //               ),
-  //               buildThemeValue(t, attribute, dynamicProp)
-  //             )
-  //           )
-  //         );
-  //       } else if (reactNativeStyleAttributes[propName]) {
-  //         acc[0].push(
-  //           t.objectProperty(
-  //             t.identifier(propName),
-  //             attribute.value.type === "JSXExpressionContainer"
-  //               ? // flex={1}
-  //                 attribute.value.expression
-  //               : // flexDirection="row"
-  //                 attribute.value
-  //           )
-  //         );
-  //       } else {
-  //         acc[1].push(attribute);
-  //       }
-  //     }
-  //     return acc;
-  //   },
-  //   [[], [], t.objectExpression([])]
-  // );
-}
-
-function parseCode(code) {
-  const ast = parser.parse(code, {
-    sourceType: "module",
-    plugins: ["jsx"],
-  });
-  return ast.program.body[0];
 }
 
 function importDependecies(path) {
@@ -323,34 +104,64 @@ function declareHooks(nodePath) {
   blockStatementPath.unshiftContainer("body", parseCode(code));
 }
 
-function buildStyle(t, openingElement, nativeProps, styledProps, variant) {
-  let hasStyleProp = false;
-  openingElement.attributes = nativeProps.map((attribute) => {
-    if (t.isJSXAttribute(attribute) && attribute.name.name === "style") {
-      hasStyleProp = true;
-      const expression = t.arrayExpression([
-        t.objectExpression(styledProps),
-        variant,
-        attribute.value.expression,
-      ]);
-      return {
-        ...attribute,
-        value: {
-          ...attribute.value,
-          expression,
-        },
-      };
-    }
-    return attribute;
-  });
-  return hasStyleProp;
+function buildStyleProp(t, openingElement) {
+  const isThemedView = openingElement.name.name === "ThemedView";
+  const [dynamicStyleProp, staticStyleProp] = openingElement.attributes.reduce(
+    (acc, attribute) => {
+      const propName = attribute.name.name;
+      let dynamicProp;
+      if (propName === "variant") {
+        acc[0] = `{
+        ...${acc[0]},
+        ...Object.entries(${
+          isThemedView ? viewVariants : textVariants
+        }[${generateCodeFromValue(t, attribute)}]).reduce((acc2, [k, v]) => {
+            const dynamicProps = [${dynamicThemeProps.map((prop) =>
+              JSON.stringify(prop)
+            )}]
+            const dynamicProp = dynamicProps.find(prop => prop.name === k);
+            return {
+              ...acc2,
+              [k]: dynamicProp ? ${theme}[dynamicProp.themeKey][v]?.[${breakPoint}] ? ${theme}[dynamicProp.themeKey][v][${breakPoint}] : ${theme}[dynamicProp.themeKey][v] : v,
+            };
+          }, {}),
+        }`;
+      } else if (
+        (dynamicProp = dynamicThemeProps.find(({ name }) => name === propName))
+      ) {
+        const key = generateCodeFromValue(t, attribute);
+        acc[0] = `{
+        ...${acc[0]},
+        ${propName}: ${theme}.${dynamicProp["themeKey"]}[${key}]?.[${breakPoint}] ?? ${theme}.${dynamicProp["themeKey"]}[${key}],
+      }`;
+      } else if (reactNativeStyleAttributes[propName]) {
+        acc[0] = `{
+        ...${acc[0]},
+        ${propName}: ${generateCodeFromValue(t, attribute)},
+      }`;
+      } else if (propName === "style") {
+        acc[1] = attribute.value.expression;
+      }
+      return acc;
+    },
+    ["{}", t.objectExpression([])]
+  );
+
+  return [parseCode(`[${dynamicStyleProp}]`).expression, staticStyleProp];
 }
 
-function injectStyleProp(t, openingElement, styleProp) {
-  openingElement.attributes.unshift(
+function injectStyleProp(t, openingElement, dynamicStyleProp, staticStyleProp) {
+  openingElement.attributes.push(
     t.jsxAttribute(
       t.jsxIdentifier("style"),
-      t.jsxExpressionContainer(styleProp)
+      t.jsxExpressionContainer(
+        t.arrayExpression([
+          ...dynamicStyleProp.elements,
+          ...(t.isArrayExpression(staticStyleProp)
+            ? staticStyleProp.elements
+            : [staticStyleProp]),
+        ])
+      )
     )
   );
 }
@@ -360,23 +171,34 @@ export default function (babel) {
   return {
     visitor: {
       Program(path) {
+        let dependeciesImported = false;
+        let hooksDeclared = false;
         path.traverse({
           JSXElement(nodePath) {
             const openingElement = nodePath.node.openingElement;
             const propName = openingElement.name.name;
             if (["ThemedView", "ThemedText"].includes(propName)) {
-              // import usePrestyle
-              // TODO: check if the import is already imported
-              importDependecies(path);
+              if (!dependeciesImported) {
+                importDependecies(path);
+                dependeciesImported = true;
+              }
 
-              // declare all the hooks
-              // TODO: check if the hook is already declared
-              declareHooks(nodePath);
+              if (!hooksDeclared) {
+                declareHooks(nodePath);
+                hooksDeclared = true;
+              }
 
-              const styleProp = buildStyleProp(t, openingElement);
+              const [dynamicStyleProp, staticStyleProp] = buildStyleProp(
+                t,
+                openingElement
+              );
 
-              // add style prop if it does not exist
-              injectStyleProp(t, openingElement, styleProp);
+              injectStyleProp(
+                t,
+                openingElement,
+                dynamicStyleProp,
+                staticStyleProp
+              );
             }
           },
         });

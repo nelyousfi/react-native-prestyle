@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {Button, SafeAreaView} from 'react-native';
-import {usePrestyle} from 'react-native-prestyle';
+import {Button, SafeAreaView, StyleSheet} from 'react-native';
 
 import {ThemedText, ThemedView, ThemeProvider} from './theme';
 
@@ -8,14 +7,6 @@ const color = 'text';
 
 const Component = () => {
   const [enabled, toggleEnabled] = useState(false);
-
-  const {theme, breakPoint, viewVariants, textVariants} = usePrestyle();
-
-  const spacing = theme.spacing.m;
-
-  console.log({
-    theme,
-  });
 
   return (
     <ThemedView
@@ -26,14 +17,19 @@ const Component = () => {
       <ThemedView
         variant={'card'}
         marginBottom={enabled ? 'm' : 'l'}
-        borderRadius={8}>
+        padding="m"
+        margin="m"
+        borderRadius={8}
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
         <ThemedText variant="bold">  Hello, I am working!</ThemedText>
       </ThemedView>
       <ThemedView
         variant="circle"
-        backgroundColor="primary"
+        backgroundColor="secondary"
         marginBottom={enabled ? 'm' : 'l'}
-        borderRadius={8}
       />
       <Button title="Toggle Enabled" onPress={() => toggleEnabled(e => !e)} />
       <ThemedView
@@ -48,6 +44,7 @@ const Component = () => {
               key={`key_${i}`}
               height={10}
               backgroundColor={backgroundColor}
+              style={styles.box}
             />
           );
         })}
@@ -75,3 +72,9 @@ export default () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  box: {
+    width: 10,
+  },
+});

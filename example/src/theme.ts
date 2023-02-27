@@ -10,8 +10,11 @@ const {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint} =
         background: 'white',
       },
       spacing: {
-        s: 10,
-        m: 16,
+        s: 1,
+        m: {
+          phone: 10,
+          tablet: 16,
+        },
         l: 32,
       },
     },
@@ -23,8 +26,11 @@ const {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint} =
         background: 'black',
       },
       spacing: {
-        s: 20,
-        m: 16 * 2,
+        s: 2,
+        m: {
+          phone: 20,
+          tablet: 32,
+        },
         l: 32 * 2,
       },
     },
@@ -36,7 +42,7 @@ const {useTheme, ThemeProvider, ThemedView, ThemedText, useBreakPoint} =
       card: {
         borderRadius: 8,
         backgroundColor: 'primary',
-        // padding: 'l',
+        padding: 'l',
       },
       circle: {
         height: 100,
