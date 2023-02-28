@@ -45,7 +45,7 @@ const Component = () => {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <ThemedText variant="bold">  Hello, I am working!</ThemedText>
+        <ThemedText variant="bold">Hello, I am working!</ThemedText>
       </ThemedView>
       <ThemedView
         variant="circle"
