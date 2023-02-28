@@ -5,8 +5,27 @@ import {ThemedText, ThemedView, ThemeProvider} from './theme';
 
 const color = 'text';
 
+const Circle = ({radius}: {radius: number}) => (
+  <ThemedView
+    variant="circle"
+    backgroundColor="primary"
+    height={radius}
+    width={radius}
+  />
+);
+
 const Component = () => {
   const [enabled, toggleEnabled] = useState(false);
+
+  const renderCard = () => {
+    return (
+      <ThemedView
+        variant={'card'}
+        backgroundColor="secondary"
+        style={{marginVertical: 20}}
+      />
+    );
+  };
 
   return (
     <ThemedView
@@ -14,6 +33,8 @@ const Component = () => {
       backgroundColor="background"
       alignItems="center"
       justifyContent="center">
+      <Circle radius={20} />
+      {renderCard()}
       <ThemedView
         variant={'card'}
         marginBottom={enabled ? 'm' : 'l'}

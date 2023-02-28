@@ -2,10 +2,10 @@ import reactNativeStyleAttributes from "react-native/Libraries/Components/View/R
 import { parse } from "@babel/parser";
 import generate from "@babel/generator";
 
-const theme = "theme______";
-const breakPoint = "breakPoint______";
-const viewVariants = "viewVariants______";
-const textVariants = "textVariants______";
+const theme = "theme";
+const breakPoint = "breakPoint";
+const viewVariants = "viewVariants";
+const textVariants = "textVariants";
 
 // TODO: import this from outside
 const dynamicThemeProps = [
@@ -93,17 +93,6 @@ function generateCodeFromValue(t, attribute) {
   return code.code;
 }
 
-function importDependecies(path) {
-  const code = `import {usePrestyle} from 'react-native-prestyle'`;
-  path.unshiftContainer("body", parseCode(code));
-}
-
-function declareHooks(nodePath) {
-  const blockStatementPath = nodePath.find((p) => p.isBlockStatement());
-  const code = `const {theme: ${theme}, breakPoint: ${breakPoint}, viewVariants: ${viewVariants}, textVariants: ${textVariants}} = usePrestyle()`;
-  blockStatementPath.unshiftContainer("body", parseCode(code));
-}
-
 function buildStyleProp(t, openingElement) {
   const isThemedView = openingElement.name.name === "ThemedView";
   const [dynamicStyleProp, staticStyleProp] = openingElement.attributes.reduce(
@@ -150,17 +139,41 @@ function buildStyleProp(t, openingElement) {
   return [parseCode(`[${dynamicStyleProp}]`).expression, staticStyleProp];
 }
 
-function injectStyleProp(t, openingElement, dynamicStyleProp, staticStyleProp) {
+function injectBuildStyleProp(
+  t,
+  openingElement,
+  dynamicStyleProp,
+  staticStyleProp
+) {
   openingElement.attributes.push(
     t.jsxAttribute(
-      t.jsxIdentifier("style"),
+      t.jsxIdentifier("buildStyle"),
       t.jsxExpressionContainer(
-        t.arrayExpression([
-          ...dynamicStyleProp.elements,
-          ...(t.isArrayExpression(staticStyleProp)
-            ? staticStyleProp.elements
-            : [staticStyleProp]),
-        ])
+        t.arrowFunctionExpression(
+          [
+            t.objectPattern([
+              t.objectProperty(t.identifier(theme), t.identifier(theme)),
+              t.objectProperty(
+                t.identifier(breakPoint),
+                t.identifier(breakPoint)
+              ),
+              t.objectProperty(
+                t.identifier(viewVariants),
+                t.identifier(viewVariants)
+              ),
+              t.objectProperty(
+                t.identifier(textVariants),
+                t.identifier(textVariants)
+              ),
+            ]),
+          ],
+          t.arrayExpression([
+            ...dynamicStyleProp.elements,
+            ...(t.isArrayExpression(staticStyleProp)
+              ? staticStyleProp.elements
+              : [staticStyleProp]),
+          ])
+        )
       )
     )
   );
@@ -171,29 +184,17 @@ export default function (babel) {
   return {
     visitor: {
       Program(path) {
-        let dependeciesImported = false;
-        let hooksDeclared = false;
         path.traverse({
           JSXElement(nodePath) {
             const openingElement = nodePath.node.openingElement;
             const propName = openingElement.name.name;
             if (["ThemedView", "ThemedText"].includes(propName)) {
-              if (!dependeciesImported) {
-                importDependecies(path);
-                dependeciesImported = true;
-              }
-
-              if (!hooksDeclared) {
-                declareHooks(nodePath);
-                hooksDeclared = true;
-              }
-
               const [dynamicStyleProp, staticStyleProp] = buildStyleProp(
                 t,
                 openingElement
               );
 
-              injectStyleProp(
+              injectBuildStyleProp(
                 t,
                 openingElement,
                 dynamicStyleProp,

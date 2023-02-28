@@ -1,6 +1,7 @@
 import React, {
   ComponentType,
   createContext,
+  forwardRef,
   ReactNode,
   useContext,
   useMemo,
@@ -166,32 +167,6 @@ function buildUseBreakPoint<BP extends BreakPoints>(): () => keyof BP {
   return useBreakPoint;
 }
 
-export const useViewVariants = <
-  BP extends BreakPoints,
-  T extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, T>>
->(): Record<string, ThemedViewStyleProps<BP, T>> => {
-  const context = useContext<ThemeContextType<BP, T, VV, TV>>(ThemeContext);
-  if (!context) {
-    throw Error("Make sure to wrap your component with ThemeProvider!");
-  }
-  return context.viewVariants;
-};
-
-export const useTextVariants = <
-  BP extends BreakPoints,
-  T extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, T>>
->(): Record<string, ThemedViewStyleProps<BP, T>> => {
-  const context = useContext<ThemeContextType<BP, T, VV, TV>>(ThemeContext);
-  if (!context) {
-    throw Error("Make sure to wrap your component with ThemeProvider!");
-  }
-  return context.textVariants;
-};
-
 type ThemedViewStyleProps<
   BP extends BreakPoints,
   T extends Theme<BP>
@@ -243,6 +218,38 @@ type ThemedTextStyleProps<
     paddingBottom: keyof T["spacing"];
   }>;
 
+const NativeThemedView = forwardRef(
+  (
+    props: {
+      buildStyle: (context: ThemeContextType<any, any, any, any>) => ViewStyle;
+    },
+    ref: any
+  ) => {
+    const context = usePrestyle();
+
+    const style = props.buildStyle(context);
+
+    return <View {...props} ref={ref} style={style} />;
+  }
+);
+NativeThemedView.displayName = "NativeThemedView";
+
+const NativeThemedText = forwardRef(
+  (
+    props: {
+      buildStyle: (context: ThemeContextType<any, any, any, any>) => TextStyle;
+    },
+    ref: any
+  ) => {
+    const context = usePrestyle();
+
+    const style = props.buildStyle(context);
+
+    return <Text {...props} ref={ref} style={style} />;
+  }
+);
+NativeThemedText.displayName = "NativeThemedText";
+
 export const prestyle = <
   BP extends BreakPoints,
   L extends Theme<BP>,
@@ -272,10 +279,10 @@ export const prestyle = <
         textVariants: TV;
       }
     >(themes),
-    ThemedView: View as unknown as ComponentType<
+    ThemedView: NativeThemedView as unknown as ComponentType<
       ViewProps & ThemedViewStyleProps<BP, L> & Partial<{ variant: keyof VV }>
     >,
-    ThemedText: Text as unknown as ComponentType<
+    ThemedText: NativeThemedText as unknown as ComponentType<
       TextProps & ThemedTextStyleProps<BP, L> & Partial<{ variant: keyof TV }>
     >,
   };
