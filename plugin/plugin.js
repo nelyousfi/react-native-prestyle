@@ -3,6 +3,7 @@ import { parse } from "@babel/parser";
 import generate from "@babel/generator";
 
 const theme = "theme";
+const spacing = "spacing";
 const breakPoint = "breakPoint";
 const viewVariants = "viewVariants";
 const textVariants = "textVariants";
@@ -19,62 +20,23 @@ const dynamicThemeProps = [
     themeKey: "colors",
   },
   // spacing
-  {
-    name: "margin",
-    themeKey: "spacing",
-  },
-  {
-    name: "marginVertical",
-    themeKey: "spacing",
-  },
-  {
-    name: "marginHorizontal",
-    themeKey: "spacing",
-  },
-  {
-    name: "marginRight",
-    themeKey: "spacing",
-  },
-  {
-    name: "marginLeft",
-    themeKey: "spacing",
-  },
-  {
-    name: "marginTop",
-    themeKey: "spacing",
-  },
-  {
-    name: "marginBottom",
-    themeKey: "spacing",
-  },
-  {
-    name: "padding",
-    themeKey: "spacing",
-  },
-  {
-    name: "paddingVertical",
-    themeKey: "spacing",
-  },
-  {
-    name: "paddingHorizontal",
-    themeKey: "spacing",
-  },
-  {
-    name: "paddingRight",
-    themeKey: "spacing",
-  },
-  {
-    name: "paddingLeft",
-    themeKey: "spacing",
-  },
-  {
-    name: "paddingTop",
-    themeKey: "spacing",
-  },
-  {
-    name: "paddingBottom",
-    themeKey: "spacing",
-  },
+];
+
+const dynamicSpacingProps = [
+  "margin",
+  "marginVertical",
+  "marginHorizontal",
+  "marginRight",
+  "marginLeft",
+  "marginTop",
+  "marginBottom",
+  "padding",
+  "paddingVertical",
+  "paddingHorizontal",
+  "paddingRight",
+  "paddingLeft",
+  "paddingTop",
+  "paddingBottom",
 ];
 
 function parseCode(code) {
@@ -108,13 +70,29 @@ function buildStyleProp(t, openingElement) {
             const dynamicProps = [${dynamicThemeProps.map((prop) =>
               JSON.stringify(prop)
             )}]
-            const dynamicProp = dynamicProps.find(prop => prop.name === k);
-            return {
-              ...acc2,
-              [k]: dynamicProp ? ${theme}[dynamicProp.themeKey][v]?.[${breakPoint}] ? ${theme}[dynamicProp.themeKey][v][${breakPoint}] : ${theme}[dynamicProp.themeKey][v] : v,
-            };
+            const dynamicSpacingProps = [${dynamicSpacingProps.map(
+              (prop) => "'" + prop + "'"
+            )}]
+            if (dynamicSpacingProps.includes(k)) {
+              return {
+                ...acc2,
+               [k]: ${spacing}[v]?.[${breakPoint}] ?? ${spacing}[v], 
+              }
+            } else {
+              const dynamicProp = dynamicProps.find(prop => prop.name === k);
+              return {
+                ...acc2,
+                [k]: dynamicProp ? ${theme}[dynamicProp.themeKey][v]?.[${breakPoint}] ? ${theme}[dynamicProp.themeKey][v][${breakPoint}] : ${theme}[dynamicProp.themeKey][v] : v,
+              }; 
+            }
           }, {}),
         }`;
+      } else if (dynamicSpacingProps.includes(propName)) {
+        const key = generateCodeFromValue(t, attribute);
+        acc[0] = `{
+        ...${acc[0]},
+        ${propName}: ${spacing}[${key}]?.[${breakPoint}] ?? ${spacing}[${key}],
+      }`;
       } else if (
         (dynamicProp = dynamicThemeProps.find(({ name }) => name === propName))
       ) {
@@ -153,6 +131,7 @@ function injectBuildStyleProp(
           [
             t.objectPattern([
               t.objectProperty(t.identifier(theme), t.identifier(theme)),
+              t.objectProperty(t.identifier(spacing), t.identifier(spacing)),
               t.objectProperty(
                 t.identifier(breakPoint),
                 t.identifier(breakPoint)

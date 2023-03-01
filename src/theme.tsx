@@ -20,46 +20,63 @@ type BreakPoints = Record<string, number>;
 
 export interface Theme<BP extends BreakPoints> {
   colors: Record<string, string | { [Key in keyof BP]: string }>;
-  spacing: Record<string, number | { [Key in keyof BP]: number }>;
 }
 
 type ThemeContextType<
   BP extends BreakPoints,
   T extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, T>>
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T, S>>
 > = {
   theme: T;
-  mode: keyof Themes<BP, T, VV, TV>;
+  mode: keyof Themes<BP, T, S, VV, TV>;
+  spacing: S;
   breakPoint: keyof BP;
   viewVariants: VV;
   textVariants: TV;
 };
 
-const ThemeContext = createContext<ThemeContextType<any, any, any, any>>(
+const ThemeContext = createContext<ThemeContextType<any, any, any, any, any>>(
   {} as any
 );
 
 export const useTheme = <
   BP extends BreakPoints,
   T extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, T>>
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T, S>>
 >(): T => {
-  const context = useContext<ThemeContextType<BP, T, VV, TV>>(ThemeContext);
+  const context = useContext<ThemeContextType<BP, T, S, VV, TV>>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
   }
   return context.theme;
 };
 
+export const useSpacing = <
+  BP extends BreakPoints,
+  T extends Theme<BP>,
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T, S>>
+>(): S => {
+  const context = useContext<ThemeContextType<BP, T, S, VV, TV>>(ThemeContext);
+  if (!context) {
+    throw Error("Make sure to wrap your component with ThemeProvider!");
+  }
+  return context.spacing;
+};
+
 export const usePrestyle = <
   BP extends BreakPoints,
   T extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, T>>
->(): ThemeContextType<BP, T, VV, TV> => {
-  const context = useContext<ThemeContextType<BP, T, VV, TV>>(ThemeContext);
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T, S>>
+>(): ThemeContextType<BP, T, S, VV, TV> => {
+  const context = useContext<ThemeContextType<BP, T, S, VV, TV>>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
   }
@@ -69,11 +86,13 @@ export const usePrestyle = <
 type Themes<
   BP extends BreakPoints,
   T extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, T>>
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T, S>>
 > = {
   light: T;
   dark: T;
+  spacing: S;
   breakPoints: BP;
   viewVariants: VV;
   textVariants: TV;
@@ -82,9 +101,10 @@ type Themes<
 const buildThemeProvider = <
   BP extends BreakPoints,
   T extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, T>>,
-  TS extends Themes<BP, T, VV, TV>
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T, S>>,
+  TS extends Themes<BP, T, S, VV, TV>
 >(
   themes: TS
 ) => {
@@ -93,8 +113,8 @@ const buildThemeProvider = <
     children,
   }: {
     mode?: Exclude<
-      keyof Themes<BP, T, VV, TV>,
-      "breakPoints" | "viewVariants" | "textVariants"
+      keyof Themes<BP, T, S, VV, TV>,
+      "breakPoints" | "viewVariants" | "textVariants" | "spacing"
     >;
     children: ReactNode;
   }) {
@@ -122,6 +142,7 @@ const buildThemeProvider = <
         value={{
           mode,
           theme,
+          spacing: themes.spacing,
           breakPoint,
           viewVariants: themes.viewVariants,
           textVariants: themes.textVariants,
@@ -135,6 +156,13 @@ const buildThemeProvider = <
 
 function buildUseTheme<BP extends BreakPoints, T extends Theme<BP>>(): () => T {
   return useTheme;
+}
+
+function buildUseSpacing<
+  BP extends BreakPoints,
+  S extends Record<string, number | { [Key in keyof BP]: number }>
+>(): () => S {
+  return useSpacing;
 }
 
 function sortObjectByValue<T>(obj: Record<string, T>): Array<[string, T]> {
@@ -153,10 +181,11 @@ function sortObjectByValue<T>(obj: Record<string, T>): Array<[string, T]> {
 export const useBreakPoint = <
   BP extends BreakPoints,
   T extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, T>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, T>>
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T, S>>
 >(): keyof BP => {
-  const context = useContext<ThemeContextType<BP, T, VV, TV>>(ThemeContext);
+  const context = useContext<ThemeContextType<BP, T, S, VV, TV>>(ThemeContext);
   if (!context) {
     throw Error("Make sure to wrap your component with ThemeProvider!");
   }
@@ -169,59 +198,63 @@ function buildUseBreakPoint<BP extends BreakPoints>(): () => keyof BP {
 
 type ThemedViewStyleProps<
   BP extends BreakPoints,
-  T extends Theme<BP>
+  T extends Theme<BP>,
+  S extends Record<string, number | { [Key in keyof BP]: number }>
 > = ViewStyle &
   Partial<{
     // colors
     backgroundColor: keyof T["colors"];
     // margins
-    margin: keyof T["spacing"];
-    marginVertical: keyof T["spacing"];
-    marginHorizontal: keyof T["spacing"];
-    marginRight: keyof T["spacing"];
-    marginLeft: keyof T["spacing"];
-    marginTop: keyof T["spacing"];
-    marginBottom: keyof T["spacing"];
+    margin: keyof S;
+    marginVertical: keyof S;
+    marginHorizontal: keyof S;
+    marginRight: keyof S;
+    marginLeft: keyof S;
+    marginTop: keyof S;
+    marginBottom: keyof S;
     // paddings
-    padding: keyof T["spacing"];
-    paddingVertical: keyof T["spacing"];
-    paddingHorizontal: keyof T["spacing"];
-    paddingRight: keyof T["spacing"];
-    paddingLeft: keyof T["spacing"];
-    paddingTop: keyof T["spacing"];
-    paddingBottom: keyof T["spacing"];
+    padding: keyof S;
+    paddingVertical: keyof S;
+    paddingHorizontal: keyof S;
+    paddingRight: keyof S;
+    paddingLeft: keyof S;
+    paddingTop: keyof S;
+    paddingBottom: keyof S;
   }>;
 
 type ThemedTextStyleProps<
   BP extends BreakPoints,
-  T extends Theme<BP>
+  T extends Theme<BP>,
+  S extends Record<string, number | { [Key in keyof BP]: number }>
 > = TextStyle &
   Partial<{
     // colors
     color: keyof T["colors"];
     backgroundColor: keyof T["colors"];
     // margins
-    margin: keyof T["spacing"];
-    marginVertical: keyof T["spacing"];
-    marginHorizontal: keyof T["spacing"];
-    marginRight: keyof T["spacing"];
-    marginLeft: keyof T["spacing"];
-    marginTop: keyof T["spacing"];
-    marginBottom: keyof T["spacing"];
+    margin: keyof S;
+    marginVertical: keyof S;
+    marginHorizontal: keyof S;
+    marginRight: keyof S;
+    marginLeft: keyof S;
+    marginTop: keyof S;
+    marginBottom: keyof S;
     // paddings
-    padding: keyof T["spacing"];
-    paddingVertical: keyof T["spacing"];
-    paddingHorizontal: keyof T["spacing"];
-    paddingRight: keyof T["spacing"];
-    paddingLeft: keyof T["spacing"];
-    paddingTop: keyof T["spacing"];
-    paddingBottom: keyof T["spacing"];
+    padding: keyof S;
+    paddingVertical: keyof S;
+    paddingHorizontal: keyof S;
+    paddingRight: keyof S;
+    paddingLeft: keyof S;
+    paddingTop: keyof S;
+    paddingBottom: keyof S;
   }>;
 
 const NativeThemedView = forwardRef(
   (
     props: {
-      buildStyle: (context: ThemeContextType<any, any, any, any>) => ViewStyle;
+      buildStyle: (
+        context: ThemeContextType<any, any, any, any, any>
+      ) => ViewStyle;
     },
     ref: any
   ) => {
@@ -237,7 +270,9 @@ NativeThemedView.displayName = "NativeThemedView";
 const NativeThemedText = forwardRef(
   (
     props: {
-      buildStyle: (context: ThemeContextType<any, any, any, any>) => TextStyle;
+      buildStyle: (
+        context: ThemeContextType<any, any, any, any, any>
+      ) => TextStyle;
     },
     ref: any
   ) => {
@@ -253,37 +288,46 @@ NativeThemedText.displayName = "NativeThemedText";
 export const prestyle = <
   BP extends BreakPoints,
   L extends Theme<BP>,
-  VV extends Record<string, ThemedViewStyleProps<BP, L>>,
-  TV extends Record<string, ThemedTextStyleProps<BP, L>>,
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, L, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, L, S>>,
   D
 >(themes: {
   light: L;
   dark: L & D;
+  spacing: S;
   breakPoints: BP;
   viewVariants: VV;
   textVariants: TV;
 }) => {
   return {
     useTheme: buildUseTheme<BP, L>(),
+    useSpacing: buildUseSpacing<BP, S>(),
     useBreakPoint: buildUseBreakPoint<BP>(),
     ThemeProvider: buildThemeProvider<
       BP,
       L,
+      S,
       VV,
       TV,
       {
         light: L;
         dark: L;
+        spacing: S;
         breakPoints: BP;
         viewVariants: VV;
         textVariants: TV;
       }
     >(themes),
     ThemedView: NativeThemedView as unknown as ComponentType<
-      ViewProps & ThemedViewStyleProps<BP, L> & Partial<{ variant: keyof VV }>
+      ViewProps &
+        ThemedViewStyleProps<BP, L, S> &
+        Partial<{ variant: keyof VV }>
     >,
     ThemedText: NativeThemedText as unknown as ComponentType<
-      TextProps & ThemedTextStyleProps<BP, L> & Partial<{ variant: keyof TV }>
+      TextProps &
+        ThemedTextStyleProps<BP, L, S> &
+        Partial<{ variant: keyof TV }>
     >,
   };
 };
