@@ -19,9 +19,49 @@ const dynamicThemeProps = [
     name: "color",
     themeKey: "colors",
   },
-  // spacing
+  {
+    name: "borderColor",
+    themeKey: "colors",
+  },
+  {
+    name: "borderTopColor",
+    themeKey: "colors",
+  },
+  {
+    name: "borderRightColor",
+    themeKey: "colors",
+  },
+  {
+    name: "borderBottomColor",
+    themeKey: "colors",
+  },
+  {
+    name: "borderLeftColor",
+    themeKey: "colors",
+  },
+  {
+    name: "borderStartColor",
+    themeKey: "colors",
+  },
+  {
+    name: "borderEndColor",
+    themeKey: "colors",
+  },
+  {
+    name: "shadowColor",
+    themeKey: "colors",
+  },
+  {
+    name: "textShadowColor",
+    themeKey: "colors",
+  },
+  {
+    name: "textDecorationColor",
+    themeKey: "colors",
+  },
 ];
 
+// spacing
 const dynamicSpacingProps = [
   "margin",
   "marginVertical",
@@ -30,6 +70,8 @@ const dynamicSpacingProps = [
   "marginLeft",
   "marginTop",
   "marginBottom",
+  "marginStart",
+  "marginEnd",
   "padding",
   "paddingVertical",
   "paddingHorizontal",
@@ -37,6 +79,11 @@ const dynamicSpacingProps = [
   "paddingLeft",
   "paddingTop",
   "paddingBottom",
+  "paddingStart",
+  "paddingEnd",
+  "gap",
+  "rowGap",
+  "columnGap",
 ];
 
 function parseCode(code) {
@@ -76,14 +123,14 @@ function buildStyleProp(t, openingElement) {
             if (dynamicSpacingProps.includes(k)) {
               return {
                 ...acc2,
-               [k]: ${spacing}[v]?.[${breakPoint}] ?? ${spacing}[v], 
+               [k]: ${spacing}[v]?.[${breakPoint}] ?? ${spacing}[v],
               }
             } else {
               const dynamicProp = dynamicProps.find(prop => prop.name === k);
               return {
                 ...acc2,
                 [k]: dynamicProp ? ${theme}[dynamicProp.themeKey][v]?.[${breakPoint}] ? ${theme}[dynamicProp.themeKey][v][${breakPoint}] : ${theme}[dynamicProp.themeKey][v] : v,
-              }; 
+              };
             }
           }, {}),
         }`;

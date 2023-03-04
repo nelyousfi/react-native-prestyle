@@ -25,7 +25,7 @@ const {
     },
   },
   spacing: {
-    s: 1,
+    s: 2,
     m: {
       phone: 10,
       tablet: 20,

@@ -45,7 +45,9 @@ const Component = () => {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <ThemedText variant="bold">Hello, I am working!</ThemedText>
+        <ThemedText variant="bold" style={{}}>
+          Hello, I am working!
+        </ThemedText>
       </ThemedView>
       <ThemedView
         variant="circle"
@@ -56,7 +58,7 @@ const Component = () => {
       <ThemedView
         flexDirection="row"
         flexWrap="wrap"
-        gap={2}
+        gap={'s'}
         style={{margin: 20}}>
         {Array.from({length: 145}).map((_, i) => {
           const backgroundColor = i % 2 === 0 ? 'primary' : 'secondary';

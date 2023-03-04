@@ -196,58 +196,79 @@ function buildUseBreakPoint<BP extends BreakPoints>(): () => keyof BP {
   return useBreakPoint;
 }
 
-type ThemedViewStyleProps<
+type ViewStyleProps<
   BP extends BreakPoints,
   T extends Theme<BP>,
   S extends Record<string, number | { [Key in keyof BP]: number }>
-> = ViewStyle &
-  Partial<{
-    // colors
-    backgroundColor: keyof T["colors"];
-    // margins
-    margin: keyof S;
-    marginVertical: keyof S;
-    marginHorizontal: keyof S;
-    marginRight: keyof S;
-    marginLeft: keyof S;
-    marginTop: keyof S;
-    marginBottom: keyof S;
-    // paddings
-    padding: keyof S;
-    paddingVertical: keyof S;
-    paddingHorizontal: keyof S;
-    paddingRight: keyof S;
-    paddingLeft: keyof S;
-    paddingTop: keyof S;
-    paddingBottom: keyof S;
-  }>;
+> = {
+  // colors
+  backgroundColor: keyof T["colors"];
+  color: keyof T["colors"];
+  borderColor: keyof T["colors"];
+  borderTopColor: keyof T["colors"];
+  borderRightColor: keyof T["colors"];
+  borderBottomColor: keyof T["colors"];
+  borderLeftColor: keyof T["colors"];
+  borderStartColor: keyof T["colors"];
+  borderEndColor: keyof T["colors"];
+  shadowColor: keyof T["colors"];
+  // margins
+  margin: keyof S;
+  marginVertical: keyof S;
+  marginHorizontal: keyof S;
+  marginRight: keyof S;
+  marginLeft: keyof S;
+  marginTop: keyof S;
+  marginBottom: keyof S;
+  marginStart: keyof S;
+  marginEnd: keyof S;
+  // paddings
+  padding: keyof S;
+  paddingVertical: keyof S;
+  paddingHorizontal: keyof S;
+  paddingRight: keyof S;
+  paddingLeft: keyof S;
+  paddingTop: keyof S;
+  paddingBottom: keyof S;
+  paddingStart: keyof S;
+  paddingEnd: keyof S;
+  // gaps
+  gap: keyof S;
+  rowGap: keyof S;
+  columnGap: keyof S;
+  something: keyof S;
+};
+
+type ThemedViewStyleProps<
+  BP extends BreakPoints,
+  T extends Theme<BP>,
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  SP = Pick<
+    ViewStyleProps<BP, T, S>,
+    Extract<keyof ViewStyleProps<BP, T, S>, keyof ViewStyle>
+  >
+> = Omit<ViewStyle, keyof SP> & Partial<SP>;
+
+type TextStyleProps<
+  BP extends BreakPoints,
+  T extends Theme<BP>,
+  S extends Record<string, number | { [Key in keyof BP]: number }>
+> = ViewStyleProps<BP, T, S> & {
+  // colors
+  color: keyof T["colors"];
+  textShadowColor: keyof T["colors"];
+  textDecorationColor: keyof T["colors"];
+};
 
 type ThemedTextStyleProps<
   BP extends BreakPoints,
   T extends Theme<BP>,
-  S extends Record<string, number | { [Key in keyof BP]: number }>
-> = TextStyle &
-  Partial<{
-    // colors
-    color: keyof T["colors"];
-    backgroundColor: keyof T["colors"];
-    // margins
-    margin: keyof S;
-    marginVertical: keyof S;
-    marginHorizontal: keyof S;
-    marginRight: keyof S;
-    marginLeft: keyof S;
-    marginTop: keyof S;
-    marginBottom: keyof S;
-    // paddings
-    padding: keyof S;
-    paddingVertical: keyof S;
-    paddingHorizontal: keyof S;
-    paddingRight: keyof S;
-    paddingLeft: keyof S;
-    paddingTop: keyof S;
-    paddingBottom: keyof S;
-  }>;
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  TP = Pick<
+    TextStyleProps<BP, T, S>,
+    Extract<keyof TextStyle, keyof TextStyleProps<BP, T, S>>
+  >
+> = Omit<TextStyle, keyof TP> & Partial<TP>;
 
 const NativeThemedView = forwardRef(
   (
