@@ -196,6 +196,16 @@ function buildUseBreakPoint<BP extends BreakPoints>(): () => keyof BP {
   return useBreakPoint;
 }
 
+function buildUsePrestyle<
+  BP extends BreakPoints,
+  T extends Theme<BP>,
+  S extends Record<string, number | { [Key in keyof BP]: number }>,
+  VV extends Record<string, ThemedViewStyleProps<BP, T, S>>,
+  TV extends Record<string, ThemedTextStyleProps<BP, T, S>>
+>(): () => ThemeContextType<BP, T, S, VV, TV> {
+  return usePrestyle;
+}
+
 type ViewStyleProps<
   BP extends BreakPoints,
   T extends Theme<BP>,
@@ -325,6 +335,7 @@ export const prestyle = <
     useTheme: buildUseTheme<BP, L>(),
     useSpacing: buildUseSpacing<BP, S>(),
     useBreakPoint: buildUseBreakPoint<BP>(),
+    usePrestyle: buildUsePrestyle<BP, L, S, VV, TV>(),
     ThemeProvider: buildThemeProvider<
       BP,
       L,

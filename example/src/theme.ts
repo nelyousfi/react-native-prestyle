@@ -7,6 +7,7 @@ const {
   ThemedView,
   ThemedText,
   useBreakPoint,
+  usePrestyle,
 } = prestyle({
   light: {
     colors: {
@@ -67,4 +68,5 @@ export {
   ThemedView,
   ThemedText,
   useBreakPoint,
+  usePrestyle,
 };
