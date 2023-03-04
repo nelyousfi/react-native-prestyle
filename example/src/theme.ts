@@ -40,11 +40,10 @@ const {
   viewVariants: {
     card: {
       borderRadius: 8,
-      // backgroundColor: 'primary',
-      // padding: 'l',
-      // height: 20,
-      // width: 20,
+      backgroundColor: 'primary',
       padding: 'l',
+      height: 20,
+      width: 20,
     },
     circle: {
       height: 100,
