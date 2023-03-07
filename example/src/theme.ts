@@ -1,4 +1,5 @@
 import {prestyle} from 'react-native-prestyle';
+import {ViewStyle, TextStyle} from 'react-native';
 
 const {
   useTheme,
@@ -8,7 +9,7 @@ const {
   ThemedText,
   useBreakPoint,
   usePrestyle,
-} = prestyle({
+} = prestyle<ViewStyle, TextStyle>()({
   light: {
     colors: {
       primary: 'blueviolet',
