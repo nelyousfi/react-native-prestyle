@@ -121,41 +121,10 @@ When parsing the props for the components, the order in which they are defined d
 
 ### Props:
 
-| Theme Property | Name                  |
-| -------------- | --------------------- |
-| colors         | `backgroundColor`     |
-|                | `color`               |
-|                | `borderColor`         |
-|                | `borderTopColor`      |
-|                | `borderRightColor`    |
-|                | `borderBottomColor`   |
-|                | `borderLeftColor`     |
-|                | `borderStartColor`    |
-|                | `borderEndColor`      |
-|                | `shadowColor`         |
-|                | `textShadowColor`     |
-|                | `textDecorationColor` |
-| spacing        | `margin`              |
-|                | `marginVertical`      |
-|                | `marginHorizontal`    |
-|                | `marginRight`         |
-|                | `marginLeft`          |
-|                | `marginTop`           |
-|                | `marginBottom`        |
-|                | `marginStart`         |
-|                | `marginEnd`           |
-|                | `padding`             |
-|                | `paddingVertical`     |
-|                | `paddingHorizontal`   |
-|                | `paddingRight`        |
-|                | `paddingLeft`         |
-|                | `paddingTop`          |
-|                | `paddingBottom`       |
-|                | `paddingStart`        |
-|                | `paddingEnd`          |
-|                | `gap`                 |
-|                | `rowGap`              |
-|                | `columnGap`           |
+| Theme Property | Name                                                                                                                                                                                                                                                                                                              |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| colors         | `backgroundColor`, `color`, `borderColor`, `borderTopColor`, `borderRightColor`, `borderBottomColor`, `borderLeftColor`, `borderStartColor`, `borderEndColor`, `shadowColor`, `textShadowColor`, `textDecorationColor`                                                                                            |
+| spacing        | `margin`, `marginVertical`, `marginHorizontal`, `marginRight`, `marginLeft`, `marginTop`, `marginBottom`, `marginStart`, `marginEnd`, `padding`, `paddingVertical`, `paddingHorizontal`, `paddingRight`, `paddingLeft`, `paddingTop`, `paddingBottom`, `paddingStart`, `paddingEnd`, `gap`, `rowGap`, `columnGap` |
 
 ## Known Limitations
 
