@@ -129,7 +129,7 @@ function buildStyleProp(t, openingElement) {
               const dynamicProp = dynamicProps.find(prop => prop.name === k);
               return {
                 ...acc2,
-                [k]: dynamicProp ? ${theme}[dynamicProp.themeKey][v]?.[${breakPoint}] ? ${theme}[dynamicProp.themeKey][v][${breakPoint}] : ${theme}[dynamicProp.themeKey][v] : v,
+                [k]: dynamicProp ? typeof ${theme}[dynamicProp.themeKey][v] === "object" ? ${theme}[dynamicProp.themeKey][v][${breakPoint}] : ${theme}[dynamicProp.themeKey][v] : v,
               };
             }
           }, {}),
@@ -145,9 +145,9 @@ function buildStyleProp(t, openingElement) {
       ) {
         const key = generateCodeFromValue(t, attribute);
         acc[0] = `{
-        ...${acc[0]},
-        ${propName}: ${theme}.${dynamicProp["themeKey"]}[${key}]?.[${breakPoint}] ?? ${theme}.${dynamicProp["themeKey"]}[${key}],
-      }`;
+          ...${acc[0]},
+          ${propName}: typeof ${theme}.${dynamicProp["themeKey"]}[${key}] === "object" ? ${theme}.${dynamicProp["themeKey"]}[${key}]?.[${breakPoint}] : ${theme}.${dynamicProp["themeKey"]}[${key}],
+        }`;
       } else if (reactNativeStyleAttributes[propName]) {
         acc[0] = `{
         ...${acc[0]},

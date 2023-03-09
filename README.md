@@ -77,7 +77,7 @@ export { ThemedView, ThemedText, ThemeProvider };
 
 4. Usage:
 
-```tsx
+```jsx
 <ThemedView
   variant="card"
   backgroundColor="primary"
