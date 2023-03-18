@@ -103,9 +103,10 @@ function generateCodeFromValue(t, attribute) {
 }
 
 function buildStyleProp(t, openingElement) {
-  const isThemedView = openingElement.name.name === "ThemedView";
+  const isThemedView = openingElement.name.name.startsWith("ThemedView");
   const [dynamicStyleProp, staticStyleProp] = openingElement.attributes.reduce(
     (acc, attribute) => {
+      if (!attribute.name?.name) return acc;
       const propName = attribute.name.name;
       let dynamicProp;
       if (propName === "variant") {
@@ -164,6 +165,10 @@ function buildStyleProp(t, openingElement) {
   return [parseCode(`[${dynamicStyleProp}]`).expression, staticStyleProp];
 }
 
+function generateBuildStyleFunctionName() {
+  return `buildStyle${Math.random().toString(36).substr(2, 9)}`;
+}
+
 function injectBuildStyleProp(
   t,
   openingElement,
@@ -172,7 +177,7 @@ function injectBuildStyleProp(
 ) {
   openingElement.attributes.push(
     t.jsxAttribute(
-      t.jsxIdentifier("buildStyle"),
+      t.jsxIdentifier(generateBuildStyleFunctionName()),
       t.jsxExpressionContainer(
         t.arrowFunctionExpression(
           [
@@ -213,8 +218,12 @@ export default function (babel) {
         path.traverse({
           JSXElement(nodePath) {
             const openingElement = nodePath.node.openingElement;
-            const propName = openingElement.name.name;
-            if (["ThemedView", "ThemedText"].includes(propName)) {
+            const componentName = openingElement.name.name;
+            if (
+              componentName &&
+              (componentName.startsWith("ThemedView") ||
+                componentName.startsWith("ThemedText"))
+            ) {
               const [dynamicStyleProp, staticStyleProp] = buildStyleProp(
                 t,
                 openingElement

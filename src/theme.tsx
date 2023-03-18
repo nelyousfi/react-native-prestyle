@@ -291,6 +291,25 @@ type TextStyleProps<
   textDecorationColor: keyof T["colors"];
 };
 
+const buildStyle = (props: any, context: any) => {
+  const style = Object.entries(props).reduce((acc, [key, value]) => {
+    if (key.startsWith("buildStyle") && typeof value === "function") {
+      const newStyle = value(context);
+      if (Array.isArray(newStyle)) {
+        return [...acc, ...newStyle];
+      } else {
+        return {
+          ...acc,
+          ...newStyle,
+        };
+      }
+    }
+    return acc;
+  }, []);
+
+  return style;
+};
+
 type ThemedTextStyleProps<
   BP extends BreakPoints,
   T extends Theme<BP>,
@@ -313,7 +332,7 @@ const NativeThemedView = forwardRef(
   ) => {
     const context = usePrestyle();
 
-    const style = props.buildStyle(context);
+    const style = buildStyle(props, context);
 
     return <View {...props} ref={ref} style={style} />;
   }
@@ -331,7 +350,7 @@ const NativeThemedText = forwardRef(
   ) => {
     const context = usePrestyle();
 
-    const style = props.buildStyle(context);
+    const style = buildStyle(props, context);
 
     return <Text {...props} ref={ref} style={style} />;
   }

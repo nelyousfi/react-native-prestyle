@@ -1,9 +1,13 @@
-import React, {useState} from 'react';
+import React, {ComponentProps, useState} from 'react';
 import {Button, SafeAreaView, StyleSheet} from 'react-native';
 
-import {ThemedText, ThemedView, ThemeProvider} from './theme';
+import {ThemedText, ThemedView, ThemeProvider, useTheme} from './theme';
 
 const color = 'text';
+
+const ThemedTextCustom = (props: ComponentProps<typeof ThemedText>) => {
+  return <ThemedText {...props} fontWeight="bold" marginTop="m" />;
+};
 
 const Circle = ({radius}: {radius: number}) => (
   <ThemedView
@@ -16,6 +20,8 @@ const Circle = ({radius}: {radius: number}) => (
 
 const Component = () => {
   const [enabled, toggleEnabled] = useState(false);
+
+  const theme = useTheme();
 
   const renderCard = () => {
     return (
@@ -30,9 +36,9 @@ const Component = () => {
   return (
     <ThemedView
       flex={1}
-      backgroundColor="background"
       alignItems="center"
-      justifyContent="center">
+      justifyContent="center"
+      style={{backgroundColor: theme.colors.background}}>
       <Circle radius={20} />
       {renderCard()}
       <ThemedView
@@ -75,6 +81,14 @@ const Component = () => {
       <ThemedText color={color} fontWeight={'bold'}>
         Hello, I am another text!
       </ThemedText>
+      <ThemedTextCustom
+        color="primary"
+        // style={{
+        //   color: theme.colors.primary,
+        // }} // for some reason, when I pass the style, I get an error from the margin={'m'} prop
+      >
+        I am the ThemedTextCustom
+      </ThemedTextCustom>
     </ThemedView>
   );
 };
